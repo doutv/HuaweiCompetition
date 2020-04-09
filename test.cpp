@@ -2,26 +2,26 @@
 #include <algorithm>
 #include <vector>
 #include <string>
-#include <unordered_set>
+#include <unordered_map>
 #include <cstring>
 #include <array>
 #include <functional>
 using namespace std;
 
-const int INF = 280005;
-struct Edge
-{
-    int u, v, nxt;
-} edge[INF];
-int edge_size;
-int first[INF];
-bool visited[INF];
-int node[INF];
-int ans_size;
+// const int INF = 280005;
+// struct Edge
+// {
+//     int u, v, nxt;
+// } edge[INF];
+// int edge_size;
+// int first[INF];
+// bool visited[INF];
+// int node[INF];
+// int ans_size;
 
 struct ArrayHasher
 {
-    size_t operator()(const array<int, 8> &a)
+    size_t operator()(const array<int, 8> &a) const
     {
         size_t h = 0;
         for (auto e : a)
@@ -32,4 +32,4 @@ struct ArrayHasher
     }
 };
 array<int, 8> ans[100005];
-unordered_set<array<int, 8>, int, ArrayHasher> path_hash;
+unordered_map<array<int, 8>, int, ArrayHasher> path_hash;

@@ -2,7 +2,7 @@
 #include <algorithm>
 #include <vector>
 #include <string>
-#include <unordered_set>
+#include <unordered_map>
 #include <cstring>
 #include <array>
 #include <functional>
@@ -21,18 +21,18 @@ int ans_size;
 
 struct ArrayHasher
 {
-    size_t operator()(const array<int, 8> &a)
+    size_t operator()(const array<int, 8> &a) const noexcept
     {
         size_t h = 0;
         for (auto e : a)
         {
-            h ^= hash<int>{}(e) + 0x9e3779b9 + (h << 6) + (h >> 2);
+            h ^= hash<int>{}(e) + INF + (h << 6) + (h >> 2);
         }
         return h;
     }
 };
 array<int, 8> ans[100005];
-unordered_set<array<int, 8>, int, ArrayHasher> path_hash;
+unordered_map<array<int, 8>, int, ArrayHasher> path_hash;
 
 void read_data()
 {
@@ -74,7 +74,7 @@ void dfs(int now, int depth, array<int, 8> &path)
         sort(next(path_copy.begin(), 1), path_copy.end());
         if (path_hash.find(path_copy) == path_hash.end())
         {
-            path_hash.insert(path_copy);
+            path_hash.insert({path_copy, 1});
             ans[++ans_size] = path_copy;
         }
         return;
