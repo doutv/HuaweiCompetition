@@ -33,3 +33,15 @@ struct ArrayHasher
 };
 array<int, 8> ans[100005];
 unordered_map<array<int, 8>, int, ArrayHasher> path_hash;
+
+int main()
+{
+    array<int, 4> a{1, 2, 3, 4};
+    array<int, 4> a_copy;
+    copy(a.begin(), next(a.begin(), 3), a_copy.begin());
+    for (auto each : a_copy)
+    {
+        cout << each << " ";
+    }
+    return 0;
+}

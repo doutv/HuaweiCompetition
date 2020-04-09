@@ -6,6 +6,7 @@
 #include <cstring>
 #include <array>
 #include <functional>
+#include <chrono>
 using namespace std;
 
 const int INF = 280005;
@@ -19,20 +20,7 @@ bool visited[INF];
 int node[INF];
 int ans_size;
 
-struct ArrayHasher
-{
-    size_t operator()(const array<int, 8> &a) const noexcept
-    {
-        size_t h = 0;
-        for (auto e : a)
-        {
-            h ^= hash<int>{}(e) + INF + (h << 6) + (h >> 2);
-        }
-        return h;
-    }
-};
 array<int, 8> ans[100005];
-unordered_map<array<int, 8>, int, ArrayHasher> path_hash;
 
 void read_data()
 {
@@ -62,24 +50,31 @@ void read_data()
 
 bool cmp(array<int, 8> &x, array<int, 8> &y)
 {
+    if (x[0] == y[0])
+        return x[1] < y[1];
     return x[0] < y[0];
 }
 
 void dfs(int now, int depth, array<int, 8> &path)
 {
-    if (visited[now] && depth >= 4)
+    if (visited[now])
     {
-        path[0] = depth;
-        array<int, 8> path_copy = path;
-        sort(next(path_copy.begin(), 1), path_copy.end());
-        if (path_hash.find(path_copy) == path_hash.end())
+        if (depth >= 3)
         {
-            path_hash.insert({path_copy, 1});
+            path[0] = depth;
+            array<int, 8> path_copy;
+            copy(path.begin(), next(path.begin(), depth + 1), path_copy.begin());
+            sort(next(path_copy.begin(), 1), next(path_copy.begin(), depth + 1));
             ans[++ans_size] = path_copy;
+            // if (path_hash.find(path_copy) == path_hash.end())
+            // {
+            //     path_hash.insert({path_copy, my_hash(path_copy)});
+            //     ans[++ans_size] = path_copy;
+            // }
         }
         return;
     }
-    if (depth >= 8)
+    if (depth >= 7)
     {
         return;
     }
@@ -96,18 +91,19 @@ void work()
     array<int, 8> path;
     for (int i = 1; i <= edge_size; i++)
     {
-        dfs(node[i], 1, path);
+        dfs(node[i], 0, path);
+        visited[node[i]] = 0;
     }
 }
 void output_data()
 {
     sort(ans + 1, ans + ans_size + 1, cmp);
+    printf("%d\n", ans_size);
     for (int i = 1; i <= ans_size; i++)
     {
-        printf("%d\n", ans[i][0]);
         // start from the first element
         // sort(next(ans[i].begin(), 1), ans[i].end());
-        for (int j = 1; j < ans[i].size(); j++)
+        for (int j = 1; j <= ans[i][0]; j++)
         {
             printf("%d ", ans[i][j]);
         }
@@ -117,8 +113,12 @@ void output_data()
 }
 int main()
 {
+    auto time_start = chrono::steady_clock::now();
     read_data();
     work();
     output_data();
+    auto time_end = chrono::steady_clock::now();
+    auto diff = time_end - time_start;
+    cout << "The program's speed: " << chrono::duration<double, milli>(diff).count() << "ms" << endl;
     return 0;
 }
