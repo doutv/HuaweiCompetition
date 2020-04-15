@@ -7,6 +7,7 @@
 #include <array>
 #include <functional>
 #include <chrono>
+#include <cmath>
 using namespace std;
 
 const int INF = 280005;
@@ -19,8 +20,70 @@ int first[INF];
 bool visited[INF];
 int node[INF];
 int ans_size;
+int found_numbers=0;
+double real_size=0;
 
 array<int, 8> ans[100005];
+array<double, 2> found[100005];
+
+// bool hash_f(array<int, 8> path)
+// {
+//     double feature = 0;
+//     for (int i=1; i<=path[0]; i++)
+//     {
+//         int j;
+//         j = i + 1;
+//         if (j > path[0])
+//         {
+//             j = 1;
+//         }
+//         double out=path[j];
+//         double in=path[i];
+//         double double_feature = pow(2, 2*in + out);
+//         feature += double_feature;
+//     }
+//     for (int i=0; i<100005; i++)
+//     {
+//         if (found[i][0] == 0)
+//         {
+//             found[i][0] = path[0];
+//             found[i][1] = feature;
+//             return true;
+//         }
+//         if (found[i][0] == path[0] and found[i][1] == feature)
+//         {
+//             return false;
+//         }
+//     }
+//     return true;
+// }
+
+array<int, 8> sort_path(array<int, 8> path)
+{
+    int smallest=path[1];
+    int smallest_position=1;
+    for (int i=1; i<=path[0]; i++)
+    {
+        if (path[i] < smallest)
+        {
+            smallest = path[i];
+            smallest_position = i;
+        }
+    }
+    array<int, 8> sorted_path;
+    sorted_path[0] = path[0];
+    for (int i=1; i <= path[0]; i++)
+    {
+        if (i >= smallest_position)
+        {
+            sorted_path[i-smallest_position+1] = path[i];
+        } else
+        {
+            sorted_path[i+path[0]-smallest_position+1] = path[i];
+        }
+    }
+    return sorted_path;
+}
 
 void read_data()
 {
@@ -55,21 +118,27 @@ bool cmp(array<int, 8> &x, array<int, 8> &y)
     return x[0] < y[0];
 }
 
-void dfs(int now, int depth, array<int, 8> &path)
+void dfs(int now, int depth, array<int, 8> &path, int target)
 {
-    if (visited[now])
+    if (now == target and depth)
     {
         if (depth >= 3)
         {
             path[0] = depth;
+            path[depth] = now;
             array<int, 8> path_copy;
-            copy(path.begin(), next(path.begin(), depth + 1), path_copy.begin());
-            sort(next(path_copy.begin(), 1), next(path_copy.begin(), depth + 1));
+            path_copy = sort_path(path);
             ans[++ans_size] = path_copy;
-            // if (path_hash.find(path_copy) == path_hash.end())
+            real_size += 1 / depth;
+            // int hash_value = hash_f(path_copy);
+            // if (hash_value)
             // {
-            //     path_hash.insert({path_copy, my_hash(path_copy)});
             //     ans[++ans_size] = path_copy;
+            //     for (int i=0; i<8; i++)
+            //     {
+            //         cout << path_copy[i] << ' ';
+            //     }
+            //     cout << '\n';
             // }
         }
         return;
@@ -82,7 +151,7 @@ void dfs(int now, int depth, array<int, 8> &path)
     visited[now] = 1;
     for (int i = first[now]; i != -1; i = edge[i].nxt)
     {
-        dfs(edge[i].v, depth + 1, path);
+        dfs(edge[i].v, depth + 1, path, target);
         visited[edge[i].v] = 0;
     }
 }
@@ -91,15 +160,16 @@ void work()
     array<int, 8> path;
     for (int i = 1; i <= edge_size; i++)
     {
-        dfs(node[i], 0, path);
+        dfs(node[i], 0, path, node[i]);
         visited[node[i]] = 0;
     }
 }
 void output_data()
 {
     sort(ans + 1, ans + ans_size + 1, cmp);
-    printf("%d\n", ans_size);
-    for (int i = 1; i <= ans_size; i++)
+    int r_ans_size = static_cast<int>(real_size);
+    printf("%d\n", (int)real_size);
+    for (int i = 1; i <= ans_size; i = i + ans[i][0])
     {
         // start from the first element
         // sort(next(ans[i].begin(), 1), ans[i].end());
