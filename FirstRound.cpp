@@ -9,7 +9,6 @@
 #include <chrono>
 #include <cmath>
 using namespace std;
-
 const int INF = 280005;
 struct Edge
 {
@@ -20,8 +19,8 @@ int first[INF];
 bool visited[INF];
 int node[INF];
 int ans_size;
-int found_numbers=0;
-double real_size=0;
+int found_numbers = 0;
+double real_size = 0;
 
 array<int, 8> ans[100005];
 array<double, 2> found[100005];
@@ -60,9 +59,9 @@ array<double, 2> found[100005];
 
 array<int, 8> sort_path(array<int, 8> path)
 {
-    int smallest=path[1];
-    int smallest_position=1;
-    for (int i=1; i<=path[0]; i++)
+    int smallest = path[1];
+    int smallest_position = 1;
+    for (int i = 1; i <= path[0]; i++)
     {
         if (path[i] < smallest)
         {
@@ -72,14 +71,15 @@ array<int, 8> sort_path(array<int, 8> path)
     }
     array<int, 8> sorted_path;
     sorted_path[0] = path[0];
-    for (int i=1; i <= path[0]; i++)
+    for (int i = 1; i <= path[0]; i++)
     {
         if (i >= smallest_position)
         {
-            sorted_path[i-smallest_position+1] = path[i];
-        } else
+            sorted_path[i - smallest_position + 1] = path[i];
+        }
+        else
         {
-            sorted_path[i+path[0]-smallest_position+1] = path[i];
+            sorted_path[i + path[0] - smallest_position + 1] = path[i];
         }
     }
     return sorted_path;
