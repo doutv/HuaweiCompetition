@@ -11,13 +11,6 @@
 #include <unordered_set>
 using namespace std;
 
-#define TEST
-
-#ifdef TEST
-string test_scale = "77409";
-string test_input_path_s;
-#endif
-
 const int INF = 280005;
 typedef long long ll;
 struct Edge
@@ -43,14 +36,17 @@ int bit_size;
 void read_data()
 {
     memset(first, -1, sizeof(first));
-    test_input_path_s = "./data/" + test_scale + "/test_data.txt";
     char input_path[] = "/data/test_data.txt";
-    // FILE *f = fopen(test_input_path_s.c_str(), "r");
-    freopen(test_input_path_s.c_str(), "r", stdin);
-    int u, v, c;
+    freopen(input_path, "r", stdin);
+    string s;
+    int u, v;
     int u_arr[INF];
-    while (scanf("%u,%u,%u", &u, &v, &c) != EOF)
+    while (cin >> s)
     {
+        int first_comma = s.find(',');
+        int second_comma = s.find(',', first_comma + 1);
+        u = stoi(s.substr(0, first_comma));
+        v = stoi(s.substr(first_comma + 1, second_comma - first_comma - 1));
         node[++node_size] = u;
         node[++node_size] = v;
         ++edge_size;
@@ -128,8 +124,6 @@ void work()
     ans_t path;
     for (int i = 1; i <= node_size; i++)
     {
-        // memset(visited, 0, sizeof(visited));
-        // cout << i << endl;
         visited[i] = 1;
         path[1] = node[i];
         dfs(i, 1, path, i);
@@ -144,9 +138,8 @@ void out(int x)
 }
 void output_data()
 {
-    string test_output_path_s = test_input_path_s.substr(0, test_input_path_s.rfind('/')) + "/output.txt";
     char output_path[] = "/projects/student/result.txt";
-    freopen(test_output_path_s.c_str(), "w", stdout);
+    freopen(output_path, "w", stdout);
     sort(ans + 1, ans + ans_size + 1, cmp);
     printf("%d\n", ans_size);
     for (int i = 1; i <= ans_size; i++)
@@ -164,15 +157,9 @@ void output_data()
 }
 int main()
 {
-    auto time_start = chrono::steady_clock::now();
     read_data();
     work();
     output_data();
-#ifdef TEST
-    auto time_end = chrono::steady_clock::now();
-    auto diff = time_end - time_start;
-    cout << "The program's speed: " << chrono::duration<double, milli>(diff).count() / 1000 << "s" << endl;
-#endif
     fclose(stdin);
     fclose(stdout);
     return 0;
