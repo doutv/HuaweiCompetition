@@ -26,13 +26,13 @@ int ans_size;
 ans_t ans[100005];
 
 unordered_set<ll> ans_hashmap;
-// <2**62-1的第一个质数
-const ll mod = 4611686018427387847;
+// 2**61-1是质数
+const ll mod = 2305843009213693951;
 
 void read_data()
 {
     memset(first, -1, sizeof(first));
-    char test_input_path[] = "./data/Github/test_data.txt";
+    char test_input_path[] = "./data/38252/test_data.txt";
     char input_path[] = "/data/test_data.txt";
     freopen(test_input_path, "r", stdin);
     string s;
@@ -89,8 +89,8 @@ void add_ans(ans_t path)
     int ri = minx.first == len ? 1 : minx.first + 1;
     while (ri != minx.first)
     {
-        int hash_id = lower_bound(node + 1, node + node_size + 1, path[ri]) - node;
-        hash_key *= (ll)hash_id;
+        ll hash_id = lower_bound(node + 1, node + node_size + 1, path[ri]) - node;
+        hash_key *= hash_id + (1 << cnt);
         hash_key %= mod;
         ++cnt;
         path_copy[cnt] = path[ri];
@@ -105,7 +105,6 @@ void add_ans(ans_t path)
 }
 void dfs(int now, int depth, ans_t &path, int target)
 {
-    // int u = lower_bound(node + 1, node + node_size + 1, now) - node;
     for (int i = first[now]; i != -1; i = edge[i].nxt)
     {
         if (edge[i].v == target)
@@ -121,7 +120,6 @@ void dfs(int now, int depth, ans_t &path, int target)
         }
         // edge[i].v==target时，不能继续dfs
         int v = lower_bound(node + 1, node + node_size + 1, edge[i].v) - node;
-        // cout << v << endl;
         if (!visited[v] && depth <= 5)
         {
             visited[v] = 1;
@@ -135,7 +133,7 @@ void work()
 {
     for (int i = 1; i <= node_size; i++)
     {
-        cout << i << " " << node[i] << endl;
+        // cout << i << " " << node[i] << endl;
         ans_t path;
         dfs(i, 0, path, node[i]);
     }
