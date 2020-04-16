@@ -34,10 +34,17 @@ unordered_set<ll> ans_hashmap;
 // 2^60上一个质数
 const ll mod = 1152921504606846883;
 int bit_size;
+
+#ifdef TEST
+string test_scale = "2755223";
+string test_input_path_s;
+#endif
 void read_data()
 {
     memset(first, -1, sizeof(first));
-    char test_input_path[] = "./data/58284/test_data.txt";
+    test_input_path_s = "./data/" + test_scale + "/test_data.txt";
+    char test_input_path[100];
+    strcpy(test_input_path, test_input_path_s.c_str());
     char input_path[] = "/data/test_data.txt";
     freopen(test_input_path, "r", stdin);
     string s;
@@ -132,9 +139,17 @@ void work()
         visited[i] = 0;
     }
 }
+void out(int x)
+{
+    if (x > 9)
+        out(x / 10);
+    putchar(x % 10 + '0');
+}
 void output_data()
 {
-    char test_output_path[] = "./output.txt";
+    string test_output_path_s = test_input_path_s.substr(0, test_input_path_s.rfind('/')) + "/output.txt";
+    char test_output_path[100];
+    strcpy(test_output_path, test_output_path_s.c_str());
     char output_path[] = "/projects/student/result.txt";
     freopen(test_output_path, "w", stdout);
     sort(ans + 1, ans + ans_size + 1, cmp);
@@ -144,9 +159,11 @@ void output_data()
         int len = ans[i][0];
         for (int j = 1; j < len; j++)
         {
-            printf("%d,", ans[i][j]);
+            out(ans[i][j]);
+            putchar(',');
         }
-        printf("%d\n", ans[i][len]);
+        out(ans[i][len]);
+        putchar('\n');
     }
     return;
 }
