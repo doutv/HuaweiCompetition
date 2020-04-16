@@ -110,7 +110,7 @@ void add_ans(ans_t path)
         }
     }
     hash_key += (ll)len << 61;
-    printf("hash_key: %lld\n", hash_key);
+    // printf("hash_key: %lld\n", hash_key);
     if (ans_hashmap.find(hash_key) == ans_hashmap.end())
     {
         ans_hashmap.insert(hash_key);
@@ -125,28 +125,33 @@ void dfs(int now, int depth, ans_t &path, int target)
         if (v == target)
         {
             // 1->2->1
-            if (depth < 3)
-                continue;
-            path[0] = depth;
-            add_ans(path);
+            if (depth >= 2)
+            {
+                path[depth + 1] = target;
+                path[0] = depth + 1;
+                add_ans(path);
+            }
         }
-        if (!visited[v] && depth <= 6)
+        else if (!visited[v] && depth <= 5)
         {
             visited[v] = 1;
-            path[depth + 1] = now;
+            path[depth + 1] = v;
             dfs(v, depth + 1, path, target);
-            path[depth + 1] = 0;
             visited[v] = 0;
         }
     }
 }
 void work()
 {
+    // test
+    // int u = 383;
+    // for (int i = first[u]; i != -1; i = edge[i].nxt)
+    // {
+    //     printf("%d %d\n", u, edge[i].v);
+    // }
     for (int i = 1; i <= node_size; i++)
     {
         ans_t path;
-        // memset(visited, 0, sizeof(visited));
-        // visited[node[i]] = 0;
         dfs(node[i], 0, path, node[i]);
     }
 }
@@ -159,8 +164,6 @@ void output_data()
     printf("%d\n", ans_size);
     for (int i = 1; i <= ans_size; i++)
     {
-        // start from the first element
-        // sort(next(ans[i].begin(), 1), ans[i].end());
         int len = ans[i][0];
         for (int j = 1; j < len; j++)
         {
