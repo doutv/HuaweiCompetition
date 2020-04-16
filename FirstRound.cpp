@@ -10,6 +10,7 @@
 #include <unordered_set>
 using namespace std;
 const int INF = 280005;
+typedef long long ll;
 struct Edge
 {
     int u, v, nxt;
@@ -18,15 +19,12 @@ int edge_size;
 int first[INF];
 bool visited[INF];
 int node_size;
-int node[INF];
-int ans_size;
-int found_numbers = 0;
-double real_size = 0;
+int node[INF * 2];
 
 typedef array<int, 8> ans_t;
+int ans_size;
 ans_t ans[100005];
 
-typedef long long ll;
 unordered_set<ll> ans_hashmap;
 // <2**62-1的第一个质数
 const ll mod = 4611686018427387847;
@@ -34,29 +32,35 @@ const ll mod = 4611686018427387847;
 void read_data()
 {
     memset(first, -1, sizeof(first));
-    char test_input_path[] = "./test_data.txt";
+    char test_input_path[] = "./data/Github/test_data.txt";
     char input_path[] = "/data/test_data.txt";
     freopen(test_input_path, "r", stdin);
     string s;
     int u, v;
+    int u_arr[INF];
     while (cin >> s)
     {
         int first_comma = s.find(',');
         int second_comma = s.find(',', first_comma + 1);
         u = stoi(s.substr(0, first_comma));
         v = stoi(s.substr(first_comma + 1, second_comma - first_comma - 1));
-        ++edge_size;
         node[++node_size] = u;
+        node[++node_size] = v;
+        ++edge_size;
+        u_arr[edge_size] = u;
         edge[edge_size].u = u;
         edge[edge_size].v = v;
-        edge[edge_size].nxt = first[u];
-        first[u] = edge_size;
     }
     //离散化
     sort(node + 1, node + node_size + 1);
     node_size = unique(node + 1, node + node_size + 1) - node - 1;
+    for (int i = 1; i <= edge_size; i++)
+    {
+        int u = lower_bound(node + 1, node + node_size + 1, u_arr[i]) - node;
+        edge[i].nxt = first[u];
+        first[u] = i;
+    }
 }
-
 bool cmp(ans_t &x, ans_t &y)
 {
     int now = 0;
@@ -92,7 +96,6 @@ void add_ans(ans_t path)
         path_copy[cnt] = path[ri];
         ri = ri == len ? 1 : ri + 1;
     }
-    // }
     hash_key += (ll)len << 61;
     if (ans_hashmap.find(hash_key) == ans_hashmap.end())
     {
@@ -102,10 +105,10 @@ void add_ans(ans_t path)
 }
 void dfs(int now, int depth, ans_t &path, int target)
 {
+    // int u = lower_bound(node + 1, node + node_size + 1, now) - node;
     for (int i = first[now]; i != -1; i = edge[i].nxt)
     {
-        int v = edge[i].v;
-        if (v == target)
+        if (edge[i].v == target)
         {
             // 1->2->1
             if (depth >= 2)
@@ -114,12 +117,15 @@ void dfs(int now, int depth, ans_t &path, int target)
                 path[0] = depth + 1;
                 add_ans(path);
             }
+            continue;
         }
-        // v==target时，不能继续dfs
-        else if (!visited[v] && depth <= 5)
+        // edge[i].v==target时，不能继续dfs
+        int v = lower_bound(node + 1, node + node_size + 1, edge[i].v) - node;
+        // cout << v << endl;
+        if (!visited[v] && depth <= 5)
         {
             visited[v] = 1;
-            path[depth + 1] = v;
+            path[depth + 1] = edge[i].v;
             dfs(v, depth + 1, path, target);
             visited[v] = 0;
         }
@@ -129,8 +135,9 @@ void work()
 {
     for (int i = 1; i <= node_size; i++)
     {
+        cout << i << " " << node[i] << endl;
         ans_t path;
-        dfs(node[i], 0, path, node[i]);
+        dfs(i, 0, path, node[i]);
     }
 }
 void output_data()
@@ -160,7 +167,7 @@ int main()
     auto time_end = chrono::steady_clock::now();
     auto diff = time_end - time_start;
     // if test
-    // cout << "The program's speed: " << chrono::duration<double, milli>(diff).count() << "ms" << endl;
+    cout << "The program's speed: " << chrono::duration<double, milli>(diff).count() << "ms" << endl;
     fclose(stdin);
     fclose(stdout);
     return 0;
