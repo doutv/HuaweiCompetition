@@ -19,29 +19,25 @@ using namespace std;
 // int node[INF];
 // int ans_size;
 
-struct ArrayHasher
-{
-    size_t operator()(const array<int, 8> &a) const
-    {
-        size_t h = 0;
-        for (auto e : a)
-        {
-            h ^= hash<int>{}(e) + 0x9e3779b9 + (h << 6) + (h >> 2);
-        }
-        return h;
-    }
-};
-array<int, 8> ans[100005];
-unordered_map<array<int, 8>, int, ArrayHasher> path_hash;
-
+// struct ArrayHasher
+// {
+//     size_t operator()(const array<int, 8> &a) const
+//     {
+//         size_t h = 0;
+//         for (auto e : a)
+//         {
+//             h ^= hash<int>{}(e) + 0x9e3779b9 + (h << 6) + (h >> 2);
+//         }
+//         return h;
+//     }
+// };
+// array<int, 8> ans[100005];
+// unordered_map<array<int, 8>, int, ArrayHasher> path_hash;
+typedef long long ll;
+const ll mod = 1152921504606846883;
 int main()
 {
-    array<int, 4> a{1, 2, 3, 4};
-    array<int, 4> a_copy;
-    copy(a.begin(), next(a.begin(), 3), a_copy.begin());
-    for (auto each : a_copy)
-    {
-        cout << each << " ";
-    }
+    ll x = mod + ((ll)7 << 60);
+    cout << x << endl;
     return 0;
 }
