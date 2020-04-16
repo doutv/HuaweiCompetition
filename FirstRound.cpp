@@ -26,10 +26,10 @@ double real_size = 0;
 typedef array<int, 8> ans_t;
 ans_t ans[100005];
 
-typedef unsigned long long ull;
-unordered_set<ull> ans_hashmap;
+typedef long long ll;
+unordered_set<ll> ans_hashmap;
 // <2**62-1的第一个质数
-const ull mod = 4611686018427387847;
+const ll mod = 4611686018427387847;
 
 void read_data()
 {
@@ -77,9 +77,9 @@ void add_ans(ans_t path)
             minx.second = path_copy[i];
         }
     }
-    path_copy[1] = minx.second;
+    path_copy[1] = path[minx.first];
     int hash_id = lower_bound(node + 1, node + node_size + 1, path[minx.first]) - node;
-    ull hash_key = (ull)(hash_id);
+    ll hash_key = (ll)(hash_id);
     // clockwise or counterclockwise
     int cnt = 1;
     int le = minx.first - 1 ? minx.first - 1 : len;
@@ -90,8 +90,8 @@ void add_ans(ans_t path)
         while (le != minx.first)
         {
             int hash_id = lower_bound(node + 1, node + node_size + 1, path[le]) - node;
-            hash_key += (ull)(hash_id << cnt * 19);
-            hash_key = hash_key << 19;
+            hash_key *= (ll)hash_id;
+            hash_key %= mod;
             ++cnt;
             path_copy[cnt] = path[le];
             le = le - 1 ? le - 1 : len;
@@ -102,14 +102,14 @@ void add_ans(ans_t path)
         while (ri != minx.first)
         {
             int hash_id = lower_bound(node + 1, node + node_size + 1, path[ri]) - node;
-            hash_key += (ull)(hash_id << cnt * 19);
+            hash_key *= (ll)hash_id;
+            hash_key %= mod;
             ++cnt;
             path_copy[cnt] = path[ri];
             ri = ri == len ? 1 : ri + 1;
         }
     }
-    hash_key %= mod;
-    hash_key += (ull)len << 61;
+    hash_key += (ll)len << 61;
     printf("hash_key: %lld\n", hash_key);
     if (ans_hashmap.find(hash_key) == ans_hashmap.end())
     {
@@ -122,11 +122,13 @@ void dfs(int now, int depth, ans_t &path, int target)
     for (int i = first[now]; i != -1; i = edge[i].nxt)
     {
         int v = edge[i].v;
-        if (v == target && depth >= 3)
+        if (v == target)
         {
+            // 1->2->1
+            if (depth < 3)
+                continue;
             path[0] = depth;
-            ans[++ans_size] = path;
-            // add_ans(path);
+            add_ans(path);
         }
         if (!visited[v] && depth <= 6)
         {
