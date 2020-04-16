@@ -59,11 +59,11 @@ void read_data()
 
 bool cmp(ans_t &x, ans_t &y)
 {
-    if (x[0] == y[0])
-        return x[1] < y[1];
-    return x[0] < y[0];
+    int now = 0;
+    while (x[now] == y[now])
+        ++now;
+    return x[now] < y[now];
 }
-
 void add_ans(ans_t path)
 {
     ans_t path_copy = path;
@@ -80,37 +80,20 @@ void add_ans(ans_t path)
     path_copy[1] = path[minx.first];
     int hash_id = lower_bound(node + 1, node + node_size + 1, path[minx.first]) - node;
     ll hash_key = (ll)(hash_id);
-    // clockwise or counterclockwise
+    // 有向图，一定是右边
     int cnt = 1;
-    int le = minx.first - 1 ? minx.first - 1 : len;
     int ri = minx.first == len ? 1 : minx.first + 1;
-    if (path[le] < path[ri])
+    while (ri != minx.first)
     {
-        // 离散化
-        while (le != minx.first)
-        {
-            int hash_id = lower_bound(node + 1, node + node_size + 1, path[le]) - node;
-            hash_key *= (ll)hash_id;
-            hash_key %= mod;
-            ++cnt;
-            path_copy[cnt] = path[le];
-            le = le - 1 ? le - 1 : len;
-        }
+        int hash_id = lower_bound(node + 1, node + node_size + 1, path[ri]) - node;
+        hash_key *= (ll)hash_id;
+        hash_key %= mod;
+        ++cnt;
+        path_copy[cnt] = path[ri];
+        ri = ri == len ? 1 : ri + 1;
     }
-    else
-    {
-        while (ri != minx.first)
-        {
-            int hash_id = lower_bound(node + 1, node + node_size + 1, path[ri]) - node;
-            hash_key *= (ll)hash_id;
-            hash_key %= mod;
-            ++cnt;
-            path_copy[cnt] = path[ri];
-            ri = ri == len ? 1 : ri + 1;
-        }
-    }
+    // }
     hash_key += (ll)len << 61;
-    // printf("hash_key: %lld\n", hash_key);
     if (ans_hashmap.find(hash_key) == ans_hashmap.end())
     {
         ans_hashmap.insert(hash_key);
@@ -132,6 +115,7 @@ void dfs(int now, int depth, ans_t &path, int target)
                 add_ans(path);
             }
         }
+        // v==target时，不能继续dfs
         else if (!visited[v] && depth <= 5)
         {
             visited[v] = 1;
@@ -143,12 +127,6 @@ void dfs(int now, int depth, ans_t &path, int target)
 }
 void work()
 {
-    // test
-    // int u = 383;
-    // for (int i = first[u]; i != -1; i = edge[i].nxt)
-    // {
-    //     printf("%d %d\n", u, edge[i].v);
-    // }
     for (int i = 1; i <= node_size; i++)
     {
         ans_t path;
@@ -182,7 +160,7 @@ int main()
     auto time_end = chrono::steady_clock::now();
     auto diff = time_end - time_start;
     // if test
-    cout << "The program's speed: " << chrono::duration<double, milli>(diff).count() << "ms" << endl;
+    // cout << "The program's speed: " << chrono::duration<double, milli>(diff).count() << "ms" << endl;
     fclose(stdin);
     fclose(stdout);
     return 0;
