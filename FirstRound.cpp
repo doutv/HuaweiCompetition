@@ -14,18 +14,19 @@ using namespace std;
 #define TEST
 
 #ifdef TEST
-string test_scale = "77409";
+string test_scale = "3738";
 string test_input_path_s;
 #endif
 
 const int INF = 280005;
 typedef long long ll;
-struct Edge
-{
-    int u, v, nxt;
-} edge[INF];
+
+// 出边
+vector<int> GUV[INF];
+// 入边
+vector<int> GVU[INF];
 int edge_size;
-int first[INF];
+
 bool visited[INF];
 int node_size;
 int node[INF * 2];
@@ -40,23 +41,21 @@ unordered_set<ll> ans_hashmap;
 const ll mod = 1152921504606846883;
 int bit_size;
 
+int u_arr[INF];
+int v_arr[INF];
 void read_data()
 {
-    memset(first, -1, sizeof(first));
     test_input_path_s = "./data/" + test_scale + "/test_data.txt";
     char input_path[] = "/data/test_data.txt";
-    // FILE *f = fopen(test_input_path_s.c_str(), "r");
     freopen(test_input_path_s.c_str(), "r", stdin);
     int u, v, c;
-    int u_arr[INF];
     while (scanf("%u,%u,%u", &u, &v, &c) != EOF)
     {
         node[++node_size] = u;
         node[++node_size] = v;
         ++edge_size;
         u_arr[edge_size] = u;
-        edge[edge_size].u = u;
-        edge[edge_size].v = v;
+        v_arr[edge_size] = v;
     }
     //离散化
     sort(node + 1, node + node_size + 1);
@@ -69,8 +68,9 @@ void read_data()
     for (int i = 1; i <= edge_size; i++)
     {
         int u = node_hashmap[u_arr[i]];
-        edge[i].nxt = first[u];
-        first[u] = i;
+        int v = node_hashmap[v_arr[i]];
+        GUV[u].push_back(v_arr[i]);
+        GVU[v].push_back(u_arr[i]);
     }
 }
 bool cmp(ans_t &x, ans_t &y)
@@ -80,7 +80,7 @@ bool cmp(ans_t &x, ans_t &y)
         ++now;
     return x[now] < y[now];
 }
-void add_ans(ans_t &path)
+void add_ans(ans_t path)
 {
     ll len = path[0];
     ll hash_key = 1;
@@ -97,42 +97,67 @@ void add_ans(ans_t &path)
         ans[++ans_size] = path;
     }
 }
-void dfs(int u, int depth, ans_t &path, int target)
+void dfs(int pu, int ru, int p_depth, int r_depth, ans_t &p_path, ans_t &r_path, int target)
 {
-    for (int i = first[u]; i != -1; i = edge[i].nxt)
+    if (p_depth <= 3)
     {
-        int v = node_hashmap[edge[i].v];
-        if (v < target)
-            continue;
-        if (v == target)
+        for (auto each : GUV[pu])
         {
-            // 1->2->1
-            if (depth >= 3)
+            int v = node_hashmap[each];
+            if (each < target)
+                continue;
+            if (v == ru)
             {
-                path[0] = depth;
+                if (p_depth + r_depth < 2)
+                    continue;
+                ans_t path;
+                path[0] = p_depth + r_depth + 1;
+                path[1] = target;
+                int pos = 1;
+                for (int i = 1; i <= p_depth; i++)
+                    path[++pos] = p_path[i];
+                for (int i = r_depth; i >= 1; i--)
+                    path[++pos] = r_path[i];
                 add_ans(path);
+                continue;
+            }
+            else if (!visited[v])
+            {
+                visited[v] = 1;
+                p_path[p_depth + 1] = each;
+                dfs(v, ru, p_depth + 1, r_depth, p_path, r_path, target);
+                visited[v] = 0;
             }
         }
-        // 找到环后不能继续dfs
-        else if (!visited[v] && depth <= 6)
+    }
+    if (r_depth <= 2)
+    {
+        for (auto each : GVU[ru])
         {
-            visited[v] = 1;
-            path[depth + 1] = edge[i].v;
-            dfs(v, depth + 1, path, target);
-            visited[v] = 0;
+            int v = node_hashmap[each];
+            if (each < target)
+                continue;
+            if (!visited[v])
+            {
+                visited[v] = 1;
+                r_path[r_depth + 1] = each;
+                dfs(pu, v, p_depth, r_depth + 1, p_path, r_path, target);
+                visited[v] = 0;
+            }
         }
     }
 }
 void work()
 {
-    ans_t path;
+    ans_t p_path, r_path;
     for (int i = 1; i <= node_size; i++)
     {
-        // memset(visited, 0, sizeof(visited));
-        // cout << i << endl;
+        // #ifdef TEST
+        //         if (i % 10 == 0)
+        //             cout << i << endl;
+        // #endif
         visited[i] = 1;
-        path[1] = node[i];
-        dfs(i, 1, path, i);
+        dfs(i, i, 0, 0, p_path, r_path, node[i]);
         visited[i] = 0;
     }
 }
