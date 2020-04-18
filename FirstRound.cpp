@@ -16,7 +16,7 @@ using namespace std;
 #define TEST
 
 #ifdef TEST
-string test_scale = "38252";
+string test_scale = "1004812";
 string test_input_path_s;
 #endif
 
@@ -30,6 +30,7 @@ vector<int> GVU[INF];
 int edge_size;
 
 bool visited[INF];
+int flag[INF];
 int node_size;
 int node[INF * 2];
 unordered_map<int, int> node_hashmap;
@@ -99,68 +100,80 @@ void add_ans(ans_t path)
         ans[++ans_size] = path;
     }
 }
-void dfs(int pu, int ru, int p_depth, int r_depth, ans_t &p_path, ans_t &r_path, int target)
+void flag_traverse_dfs(int u, int depth, int target)
 {
-    int len = p_depth + r_depth + 1;
-    if (pu == ru && len > 1)
+    if (depth <= 2)
     {
-        if (len < 3)
-            return;
-        ans_t path;
-        path[0] = p_depth + r_depth + 1;
-        path[1] = target;
-        int pos = 1;
-        for (int i = 1; i <= p_depth; i++)
-            path[++pos] = p_path[i];
-        for (int i = r_depth; i >= 1; i--)
-            path[++pos] = r_path[i];
-        add_ans(path);
-        return;
-    }
-    if (p_depth <= 2)
-    {
-        for (int i = 0; i < GUV[pu].size(); i++)
+        for (int i = 0; i < GUV[u].size(); i++)
         {
-            int v = node_hashmap[GUV[pu][i]];
-            if (GUV[pu][i] < target)
-                continue;
-            else if (!visited[v] || v == ru)
+            int v = node_hashmap[GUV[u][i]];
+            if (!visited[v] && GUV[u][i] > target)
             {
                 visited[v] = 1;
-                p_path[p_depth + 1] = GUV[pu][i];
-                dfs(v, ru, p_depth + 1, r_depth, p_path, r_path, target);
-                visited[v] = 0;
-            }
-        }
-    }
-    if (r_depth <= 2)
-    {
-        for (int i = 0; i < GVU[ru].size(); i++)
-        {
-            int v = node_hashmap[GVU[ru][i]];
-            if (GVU[ru][i] < target)
-                continue;
-            else if (!visited[v] || pu == v)
-            {
-                visited[v] = 1;
-                r_path[r_depth + 1] = GVU[ru][i];
-                dfs(pu, v, p_depth, r_depth + 1, p_path, r_path, target);
+                flag[v] = target;
+                flag_traverse_dfs(v, depth + 1, target);
                 visited[v] = 0;
             }
         }
     }
 }
+void flag_reverse_dfs(int u, int depth, int target)
+{
+    if (depth <= 2)
+    {
+        for (int i = 0; i < GVU[u].size(); i++)
+        {
+            int v = node_hashmap[GVU[u][i]];
+            if (!visited[v] && GVU[u][i] > target)
+            {
+                visited[v] = 1;
+                flag[v] = target;
+                flag_reverse_dfs(v, depth + 1, target);
+                visited[v] = 0;
+            }
+        }
+    }
+}
+void dfs(int u, int depth, ans_t &path, int target)
+{
+    for (int i = 0; i < GUV[u].size(); i++)
+    {
+        int v = node_hashmap[GUV[u][i]];
+        if (flag[v] != target)
+            continue;
+        if (GUV[u][i] == target)
+        {
+            if (depth >= 3)
+            {
+                path[0] = depth;
+                add_ans(path);
+            }
+        }
+        else if (!visited[v] && depth <= 6)
+        {
+            visited[v] = 1;
+            path[depth + 1] = GUV[u][i];
+            dfs(v, depth + 1, path, target);
+            visited[v] = 0;
+        }
+    }
+}
 void work()
 {
-    ans_t p_path, r_path;
+    ans_t path;
     for (int i = 1; i <= node_size; i++)
     {
 #ifdef OUTPUT
-        if (i % (node_size / 100) == 0)
+        if (i % (node_size / 10) == 0)
             cout << i << endl;
 #endif
+        int target = node[i];
         visited[i] = 1;
-        dfs(i, i, 0, 0, p_path, r_path, node[i]);
+        flag[i] = target;
+        flag_traverse_dfs(i, 0, target);
+        flag_reverse_dfs(i, 0, target);
+        path[1] = target;
+        dfs(i, 1, path, target);
         visited[i] = 0;
     }
 }

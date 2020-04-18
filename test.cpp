@@ -37,7 +37,9 @@ typedef long long ll;
 const ll mod = 1152921504606846883;
 int main()
 {
-    ll x = mod + ((ll)7 << 60);
-    cout << x << endl;
+    // ll x = mod + ((ll)7 << 60);
+    // cout << x << endl;
+    int node_size = 1004812;
+    cout << 1 % (77409 / 100) << endl;
     return 0;
 }
