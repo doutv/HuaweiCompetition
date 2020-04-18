@@ -16,7 +16,7 @@ using namespace std;
 #define TEST
 
 #ifdef TEST
-string test_scale = "1004812";
+string test_scale = "38252";
 string test_input_path_s;
 #endif
 
@@ -139,17 +139,22 @@ void dfs(int u, int depth, ans_t &path, int target)
     for (int i = 0; i < GUV[u].size(); i++)
     {
         int v = node_hashmap[GUV[u][i]];
-        if (flag[v] != target)
+        if (GUV[u][i] < target)
             continue;
-        if (GUV[u][i] == target)
+        if (flag[v] == -2 && visited[v] == 0)
         {
-            if (depth >= 3)
+            if (depth >= 2)
             {
-                path[0] = depth;
+                path[0] = depth + 1;
+                path[depth + 1] = GUV[u][i];
                 add_ans(path);
             }
         }
-        else if (!visited[v] && depth <= 6)
+        if (GUV[u][i] == target)
+            continue;
+        if (flag[v] != target && flag[v] != -2)
+            continue;
+        if (!visited[v] && depth <= 5)
         {
             visited[v] = 1;
             path[depth + 1] = GUV[u][i];
@@ -160,6 +165,7 @@ void dfs(int u, int depth, ans_t &path, int target)
 }
 void work()
 {
+    memset(flag, -1, node_size + 5);
     ans_t path;
     for (int i = 1; i <= node_size; i++)
     {
@@ -172,8 +178,19 @@ void work()
         flag[i] = target;
         flag_traverse_dfs(i, 0, target);
         flag_reverse_dfs(i, 0, target);
+        for (int j = 0; j < GVU[i].size(); j++)
+        {
+            int v = node_hashmap[GVU[i][j]];
+            // 特殊标记倒走一步的点
+            flag[v] = -2;
+        }
         path[1] = target;
         dfs(i, 1, path, target);
+        for (int j = 0; j < GVU[i].size(); j++)
+        {
+            int v = node_hashmap[GVU[i][j]];
+            flag[v] = target;
+        }
         visited[i] = 0;
     }
 }

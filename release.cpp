@@ -13,13 +13,13 @@ using namespace std;
 
 const int INF = 280005;
 typedef long long ll;
-struct Edge
-{
-    int u, v, nxt;
-} edge[INF];
+
+vector<int> GUV[INF];
+vector<int> GVU[INF];
 int edge_size;
-int first[INF];
+
 bool visited[INF];
+int flag[INF];
 int node_size;
 int node[INF * 2];
 unordered_map<int, int> node_hashmap;
@@ -33,28 +33,21 @@ unordered_set<ll> ans_hashmap;
 const ll mod = 1152921504606846883;
 int bit_size;
 
+int u_arr[INF];
+int v_arr[INF];
 void read_data()
 {
-    memset(first, -1, sizeof(first));
-    char input_path[] = "/data/test_data.txt";
-    freopen(input_path, "r", stdin);
-    string s;
-    int u, v;
-    int u_arr[INF];
-    while (cin >> s)
+    string input_path = "/data/test_data.txt";
+    freopen(input_path.c_str(), "r", stdin);
+    int u, v, c;
+    while (scanf("%u,%u,%u", &u, &v, &c) != EOF)
     {
-        int first_comma = s.find(',');
-        int second_comma = s.find(',', first_comma + 1);
-        u = stoi(s.substr(0, first_comma));
-        v = stoi(s.substr(first_comma + 1, second_comma - first_comma - 1));
         node[++node_size] = u;
         node[++node_size] = v;
         ++edge_size;
         u_arr[edge_size] = u;
-        edge[edge_size].u = u;
-        edge[edge_size].v = v;
+        v_arr[edge_size] = v;
     }
-    //离散化
     sort(node + 1, node + node_size + 1);
     node_size = unique(node + 1, node + node_size + 1) - node - 1;
     for (int i = 1; i <= node_size; i++)
@@ -65,8 +58,9 @@ void read_data()
     for (int i = 1; i <= edge_size; i++)
     {
         int u = node_hashmap[u_arr[i]];
-        edge[i].nxt = first[u];
-        first[u] = i;
+        int v = node_hashmap[v_arr[i]];
+        GUV[u].push_back(v_arr[i]);
+        GVU[v].push_back(u_arr[i]);
     }
 }
 bool cmp(ans_t &x, ans_t &y)
@@ -76,7 +70,7 @@ bool cmp(ans_t &x, ans_t &y)
         ++now;
     return x[now] < y[now];
 }
-void add_ans(ans_t &path)
+void add_ans(ans_t path)
 {
     ll len = path[0];
     ll hash_key = 1;
@@ -93,27 +87,59 @@ void add_ans(ans_t &path)
         ans[++ans_size] = path;
     }
 }
+void flag_traverse_dfs(int u, int depth, int target)
+{
+    if (depth <= 2)
+    {
+        for (int i = 0; i < GUV[u].size(); i++)
+        {
+            int v = node_hashmap[GUV[u][i]];
+            if (!visited[v] && GUV[u][i] > target)
+            {
+                visited[v] = 1;
+                flag[v] = target;
+                flag_traverse_dfs(v, depth + 1, target);
+                visited[v] = 0;
+            }
+        }
+    }
+}
+void flag_reverse_dfs(int u, int depth, int target)
+{
+    if (depth <= 2)
+    {
+        for (int i = 0; i < GVU[u].size(); i++)
+        {
+            int v = node_hashmap[GVU[u][i]];
+            if (!visited[v] && GVU[u][i] > target)
+            {
+                visited[v] = 1;
+                flag[v] = target;
+                flag_reverse_dfs(v, depth + 1, target);
+                visited[v] = 0;
+            }
+        }
+    }
+}
 void dfs(int u, int depth, ans_t &path, int target)
 {
-    for (int i = first[u]; i != -1; i = edge[i].nxt)
+    for (int i = 0; i < GUV[u].size(); i++)
     {
-        int v = node_hashmap[edge[i].v];
-        if (v < target)
+        int v = node_hashmap[GUV[u][i]];
+        if (flag[v] != target)
             continue;
-        if (v == target)
+        if (GUV[u][i] == target)
         {
-            // 1->2->1
             if (depth >= 3)
             {
                 path[0] = depth;
                 add_ans(path);
             }
         }
-        // 找到环后不能继续dfs
         else if (!visited[v] && depth <= 6)
         {
             visited[v] = 1;
-            path[depth + 1] = edge[i].v;
+            path[depth + 1] = GUV[u][i];
             dfs(v, depth + 1, path, target);
             visited[v] = 0;
         }
@@ -124,9 +150,13 @@ void work()
     ans_t path;
     for (int i = 1; i <= node_size; i++)
     {
+        int target = node[i];
         visited[i] = 1;
-        path[1] = node[i];
-        dfs(i, 1, path, i);
+        flag[i] = target;
+        flag_traverse_dfs(i, 0, target);
+        flag_reverse_dfs(i, 0, target);
+        path[1] = target;
+        dfs(i, 1, path, target);
         visited[i] = 0;
     }
 }
@@ -138,8 +168,8 @@ void out(int x)
 }
 void output_data()
 {
-    char output_path[] = "/projects/student/result.txt";
-    freopen(output_path, "w", stdout);
+    string output_path = "/projects/student/result.txt";
+    freopen(output_path.c_str(), "w", stdout);
     sort(ans + 1, ans + ans_size + 1, cmp);
     printf("%d\n", ans_size);
     for (int i = 1; i <= ans_size; i++)
