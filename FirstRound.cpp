@@ -16,7 +16,7 @@ using namespace std;
 #define TEST
 
 #ifdef TEST
-string test_scale = "38252";
+string test_scale = "2755223";
 string test_input_path_s;
 #endif
 
@@ -38,11 +38,6 @@ unordered_map<int, int> node_hashmap;
 typedef array<int, 8> ans_t;
 int ans_size;
 ans_t ans[100005];
-
-unordered_set<ll> ans_hashmap;
-// 2^60上一个质数
-const ll mod = 1152921504606846883;
-int bit_size;
 
 int u_arr[INF];
 int v_arr[INF];
@@ -67,7 +62,6 @@ void read_data()
     {
         node_hashmap[node[i]] = i;
     }
-    bit_size = log(node_size) / log(2) + 1;
     for (int i = 1; i <= edge_size; i++)
     {
         int u = node_hashmap[u_arr[i]];
@@ -82,23 +76,6 @@ bool cmp(ans_t &x, ans_t &y)
     while (x[now] == y[now])
         ++now;
     return x[now] < y[now];
-}
-void add_ans(ans_t path)
-{
-    ll len = path[0];
-    ll hash_key = 1;
-    for (ll i = 1; i <= len; i++)
-    {
-        ll hash_id = node_hashmap[path[i]];
-        hash_key ^= hash_id << ((i - 1) * bit_size) % 60;
-        hash_key %= mod;
-    }
-    hash_key += (ll)len << 60;
-    if (ans_hashmap.find(hash_key) == ans_hashmap.end())
-    {
-        ans_hashmap.insert(hash_key);
-        ans[++ans_size] = path;
-    }
 }
 void flag_traverse_dfs(int u, int depth, int target)
 {
@@ -147,7 +124,8 @@ void dfs(int u, int depth, ans_t &path, int target)
             {
                 path[0] = depth + 1;
                 path[depth + 1] = GUV[u][i];
-                add_ans(path);
+                // add_ans(path);
+                ans[++ans_size] = path;
             }
         }
         if (GUV[u][i] == target)
@@ -165,7 +143,7 @@ void dfs(int u, int depth, ans_t &path, int target)
 }
 void work()
 {
-    memset(flag, -1, node_size + 5);
+    memset(flag, -1, sizeof(flag));
     ans_t path;
     for (int i = 1; i <= node_size; i++)
     {
@@ -173,9 +151,8 @@ void work()
         if (i % (node_size / 10) == 0)
             cout << i << endl;
 #endif
+
         int target = node[i];
-        visited[i] = 1;
-        flag[i] = target;
         flag_traverse_dfs(i, 0, target);
         flag_reverse_dfs(i, 0, target);
         for (int j = 0; j < GVU[i].size(); j++)
@@ -191,7 +168,6 @@ void work()
             int v = node_hashmap[GVU[i][j]];
             flag[v] = target;
         }
-        visited[i] = 0;
     }
 }
 void out(int x)
