@@ -16,7 +16,7 @@ using namespace std;
 #define TEST
 
 #ifdef TEST
-string test_scale = "2755223";
+string test_scale = "1004812";
 string test_input_path_s;
 #endif
 
@@ -37,7 +37,7 @@ unordered_map<int, int> node_hashmap;
 
 typedef array<int, 8> ans_t;
 int ans_size;
-ans_t ans[100005];
+ans_t ans[4000005];
 
 int u_arr[INF];
 int v_arr[INF];
@@ -124,7 +124,6 @@ void dfs(int u, int depth, ans_t &path, int target)
             {
                 path[0] = depth + 1;
                 path[depth + 1] = GUV[u][i];
-                // add_ans(path);
                 ans[++ans_size] = path;
             }
         }
@@ -143,7 +142,7 @@ void dfs(int u, int depth, ans_t &path, int target)
 }
 void work()
 {
-    memset(flag, -1, sizeof(flag));
+    memset(flag, -1, node_size + 5);
     ans_t path;
     for (int i = 1; i <= node_size; i++)
     {
