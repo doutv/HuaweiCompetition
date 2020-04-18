@@ -37,13 +37,25 @@ void read_data()
     char input_path[] = "/data/test_data.txt";
     freopen(input_path, "r", stdin);
     int u, v, c;
-    while (scanf("%u,%u,%u", &u, &v, &c) != EOF)
+    int ch;
+    while (1)
     {
+        u = 0;
+        while ('0' <= (ch = getchar()) && ch <= '9')
+            u = u * 10 + ch - '0';
+        v = 0;
+        while ('0' <= (ch = getchar()) && ch <= '9')
+            v = v * 10 + ch - '0';
+        ch = getchar();
+        while ('0' <= ch && ch <= '9')
+            ch = getchar();
         node[++node_size] = u;
         node[++node_size] = v;
         ++edge_size;
         u_arr[edge_size] = u;
         v_arr[edge_size] = v;
+        if (ch == EOF)
+            break;
     }
     //离散化
     sort(node + 1, node + node_size + 1);
@@ -136,11 +148,6 @@ void work()
     ans_t path;
     for (int i = 1; i <= node_size; i++)
     {
-#ifdef OUTPUT
-        if (i % (node_size / 10) == 0)
-            cout << i << endl;
-#endif
-
         int target = node[i];
         flag_traverse_dfs(i, 0, target);
         flag_reverse_dfs(i, 0, target);
@@ -190,13 +197,6 @@ int main()
     read_data();
     work();
     output_data();
-#ifdef TEST
-    auto time_end = chrono::steady_clock::now();
-    auto diff = time_end - time_start;
-    freopen("CON", "w", stdout);
-    printf("ans size is %d\n", ans_size);
-    cout << "The program's speed: " << chrono::duration<double, milli>(diff).count() / 1000 << "s" << endl;
-#endif
     fclose(stdin);
     fclose(stdout);
     return 0;

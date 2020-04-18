@@ -16,7 +16,7 @@ using namespace std;
 #define TEST
 
 #ifdef TEST
-string test_scale = "3512444";
+string test_scale = "std";
 string test_input_path_s;
 #endif
 
@@ -47,7 +47,7 @@ void read_data()
     char input_path[] = "/data/test_data.txt";
     freopen(test_input_path_s.c_str(), "r", stdin);
     int u, v, c;
-    char ch;
+    int ch;
     while (1)
     {
         u = 0;
