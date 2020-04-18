@@ -16,7 +16,7 @@ using namespace std;
 #define TEST
 
 #ifdef TEST
-string test_scale = "1004812";
+string test_scale = "2861665";
 string test_input_path_s;
 #endif
 
@@ -204,6 +204,8 @@ int main()
 #ifdef TEST
     auto time_end = chrono::steady_clock::now();
     auto diff = time_end - time_start;
+    freopen("CON", "w", stdout);
+    printf("ans size is %d\n", ans_size);
     cout << "The program's speed: " << chrono::duration<double, milli>(diff).count() / 1000 << "s" << endl;
 #endif
     fclose(stdin);
