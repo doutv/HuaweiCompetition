@@ -11,6 +11,11 @@
 #include <unordered_set>
 using namespace std;
 
+#ifdef TEST
+string test_scale = "2755223";
+string test_input_path_s;
+#endif
+
 const int INF = 280005;
 typedef long long ll;
 
@@ -40,22 +45,26 @@ void read_data()
     int ch;
     while (1)
     {
+        ch = getchar();
+        if (ch == EOF)
+            break;
         u = 0;
-        while ('0' <= (ch = getchar()) && ch <= '9')
-            u = u * 10 + ch - '0';
+        while ('0' <= ch && ch <= '9')
+        {
+            u = (u << 3) + (u << 1) + ch - '0';
+            ch = getchar();
+        }
         v = 0;
         while ('0' <= (ch = getchar()) && ch <= '9')
-            v = v * 10 + ch - '0';
-        ch = getchar();
-        while ('0' <= ch && ch <= '9')
-            ch = getchar();
+            v = (v << 3) + (v << 1) + ch - '0';
+        c = 0;
+        while ('0' <= (ch = getchar()) && ch <= '9')
+            c = (c << 3) + (c << 1) + ch - '0';
         node[++node_size] = u;
         node[++node_size] = v;
         ++edge_size;
         u_arr[edge_size] = u;
         v_arr[edge_size] = v;
-        if (ch == EOF)
-            break;
     }
     //离散化
     sort(node + 1, node + node_size + 1);
@@ -148,6 +157,11 @@ void work()
     ans_t path;
     for (int i = 1; i <= node_size; i++)
     {
+#ifdef OUTPUT
+        if (i % (node_size / 10) == 0)
+            cout << i << endl;
+#endif
+
         int target = node[i];
         flag_traverse_dfs(i, 0, target);
         flag_reverse_dfs(i, 0, target);
@@ -193,7 +207,6 @@ void output_data()
 }
 int main()
 {
-    auto time_start = chrono::steady_clock::now();
     read_data();
     work();
     output_data();
