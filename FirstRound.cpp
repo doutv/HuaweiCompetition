@@ -16,7 +16,7 @@ using namespace std;
 #define TEST
 
 #ifdef TEST
-string test_scale = "std";
+string test_scale = "2755223";
 string test_input_path_s;
 #endif
 
@@ -50,22 +50,26 @@ void read_data()
     int ch;
     while (1)
     {
+        ch = getchar();
+        if (ch == EOF)
+            break;
         u = 0;
-        while ('0' <= (ch = getchar()) && ch <= '9')
-            u = u * 10 + ch - '0';
+        while ('0' <= ch && ch <= '9')
+        {
+            u = (u << 3) + (u << 1) + ch - '0';
+            ch = getchar();
+        }
         v = 0;
         while ('0' <= (ch = getchar()) && ch <= '9')
-            v = v * 10 + ch - '0';
-        ch = getchar();
-        while ('0' <= ch && ch <= '9')
-            ch = getchar();
+            v = (v << 3) + (v << 1) + ch - '0';
+        c = 0;
+        while ('0' <= (ch = getchar()) && ch <= '9')
+            c = (c << 3) + (c << 1) + ch - '0';
         node[++node_size] = u;
         node[++node_size] = v;
         ++edge_size;
         u_arr[edge_size] = u;
         v_arr[edge_size] = v;
-        if (ch == EOF)
-            break;
     }
     //离散化
     sort(node + 1, node + node_size + 1);
