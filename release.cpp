@@ -11,15 +11,6 @@
 #include <unordered_set>
 using namespace std;
 
-#define OUTPUT
-
-#define TEST
-
-#ifdef TEST
-string test_scale = "3512444";
-string test_input_path_s;
-#endif
-
 const int INF = 280005;
 typedef long long ll;
 
@@ -43,29 +34,16 @@ int u_arr[INF];
 int v_arr[INF];
 void read_data()
 {
-    test_input_path_s = "./data/" + test_scale + "/test_data.txt";
     char input_path[] = "/data/test_data.txt";
-    freopen(test_input_path_s.c_str(), "r", stdin);
+    freopen(input_path, "r", stdin);
     int u, v, c;
-    char ch;
-    while (1)
+    while (scanf("%u,%u,%u", &u, &v, &c) != EOF)
     {
-        u = 0;
-        while ('0' <= (ch = getchar()) && ch <= '9')
-            u = u * 10 + ch - '0';
-        v = 0;
-        while ('0' <= (ch = getchar()) && ch <= '9')
-            v = v * 10 + ch - '0';
-        ch = getchar();
-        while ('0' <= ch && ch <= '9')
-            ch = getchar();
         node[++node_size] = u;
         node[++node_size] = v;
         ++edge_size;
         u_arr[edge_size] = u;
         v_arr[edge_size] = v;
-        if (ch == EOF)
-            break;
     }
     //离散化
     sort(node + 1, node + node_size + 1);
@@ -189,9 +167,8 @@ void out(int x)
 }
 void output_data()
 {
-    string test_output_path_s = test_input_path_s.substr(0, test_input_path_s.rfind('/')) + "/output.txt";
     char output_path[] = "/projects/student/result.txt";
-    freopen(test_output_path_s.c_str(), "w", stdout);
+    freopen(output_path, "w", stdout);
     sort(ans + 1, ans + ans_size + 1, cmp);
     printf("%d\n", ans_size);
     for (int i = 1; i <= ans_size; i++)
