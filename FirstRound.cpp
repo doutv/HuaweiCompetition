@@ -15,9 +15,12 @@ using namespace std;
 
 #define TEST
 
+char input_path[] = "/data/test_data.txt";
+char output_path[] = "/projects/student/result.txt";
 #ifdef TEST
-string test_scale = "2755223";
-string test_input_path_s;
+string test_scale = "testIO";
+string test_input_path_s = "./data/" + test_scale + "/test_data.txt";
+string test_output_path_s = test_input_path_s.substr(0, test_input_path_s.rfind('/')) + "/output.txt";
 #endif
 
 const int INF = 280005;
@@ -41,12 +44,11 @@ ans_t ans[4000005];
 
 int u_arr[INF];
 int v_arr[INF];
+
 void read_data()
 {
-    test_input_path_s = "./data/" + test_scale + "/test_data.txt";
-    char input_path[] = "/data/test_data.txt";
     freopen(test_input_path_s.c_str(), "r", stdin);
-    int u, v, c;
+    int u, v;
     int ch;
     while (1)
     {
@@ -56,15 +58,15 @@ void read_data()
         u = 0;
         while ('0' <= ch && ch <= '9')
         {
-            u = (u << 3) + (u << 1) + ch - '0';
+            u = (u << 3) + (u << 1) - '0' + ch;
             ch = getchar();
         }
         v = 0;
         while ('0' <= (ch = getchar()) && ch <= '9')
-            v = (v << 3) + (v << 1) + ch - '0';
-        c = 0;
-        while ('0' <= (ch = getchar()) && ch <= '9')
-            c = (c << 3) + (c << 1) + ch - '0';
+            v = (v << 3) + (v << 1) - '0' + ch;
+        ch = getchar();
+        while ('0' <= ch && ch <= '9')
+            ch = getchar();
         node[++node_size] = u;
         node[++node_size] = v;
         ++edge_size;
@@ -191,10 +193,9 @@ void out(int x)
         out(x / 10);
     putchar(x % 10 + '0');
 }
+
 void output_data()
 {
-    string test_output_path_s = test_input_path_s.substr(0, test_input_path_s.rfind('/')) + "/output.txt";
-    char output_path[] = "/projects/student/result.txt";
     freopen(test_output_path_s.c_str(), "w", stdout);
     sort(ans + 1, ans + ans_size + 1, cmp);
     printf("%d\n", ans_size);

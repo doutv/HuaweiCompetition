@@ -11,10 +11,8 @@
 #include <unordered_set>
 using namespace std;
 
-#ifdef TEST
-string test_scale = "2755223";
-string test_input_path_s;
-#endif
+char input_path[] = "/data/test_data.txt";
+char output_path[] = "/projects/student/result.txt";
 
 const int INF = 280005;
 typedef long long ll;
@@ -37,11 +35,11 @@ ans_t ans[4000005];
 
 int u_arr[INF];
 int v_arr[INF];
+
 void read_data()
 {
-    char input_path[] = "/data/test_data.txt";
     freopen(input_path, "r", stdin);
-    int u, v, c;
+    int u, v;
     int ch;
     while (1)
     {
@@ -51,15 +49,15 @@ void read_data()
         u = 0;
         while ('0' <= ch && ch <= '9')
         {
-            u = (u << 3) + (u << 1) + ch - '0';
+            u = (u << 3) + (u << 1) - '0' + ch;
             ch = getchar();
         }
         v = 0;
         while ('0' <= (ch = getchar()) && ch <= '9')
-            v = (v << 3) + (v << 1) + ch - '0';
-        c = 0;
-        while ('0' <= (ch = getchar()) && ch <= '9')
-            c = (c << 3) + (c << 1) + ch - '0';
+            v = (v << 3) + (v << 1) - '0' + ch;
+        ch = getchar();
+        while ('0' <= ch && ch <= '9')
+            ch = getchar();
         node[++node_size] = u;
         node[++node_size] = v;
         ++edge_size;
@@ -157,11 +155,6 @@ void work()
     ans_t path;
     for (int i = 1; i <= node_size; i++)
     {
-#ifdef OUTPUT
-        if (i % (node_size / 10) == 0)
-            cout << i << endl;
-#endif
-
         int target = node[i];
         flag_traverse_dfs(i, 0, target);
         flag_reverse_dfs(i, 0, target);
@@ -186,9 +179,9 @@ void out(int x)
         out(x / 10);
     putchar(x % 10 + '0');
 }
+
 void output_data()
 {
-    char output_path[] = "/projects/student/result.txt";
     freopen(output_path, "w", stdout);
     sort(ans + 1, ans + ans_size + 1, cmp);
     printf("%d\n", ans_size);
@@ -207,6 +200,7 @@ void output_data()
 }
 int main()
 {
+    auto time_start = chrono::steady_clock::now();
     read_data();
     work();
     output_data();
