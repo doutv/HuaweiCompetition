@@ -11,6 +11,8 @@
 #include <unordered_set>
 using namespace std;
 
+auto time_start = chrono::steady_clock::now();
+
 #define OUTPUT
 
 #define TEST
@@ -18,7 +20,7 @@ using namespace std;
 char input_path[] = "/data/test_data.txt";
 char output_path[] = "/projects/student/result.txt";
 #ifdef TEST
-string test_scale = "testIO";
+string test_scale = "2755223";
 string test_input_path_s = "./data/" + test_scale + "/test_data.txt";
 string test_output_path_s = test_input_path_s.substr(0, test_input_path_s.rfind('/')) + "/output.txt";
 #endif
@@ -73,7 +75,6 @@ void read_data()
         u_arr[edge_size] = u;
         v_arr[edge_size] = v;
     }
-    //离散化
     sort(node + 1, node + node_size + 1);
     node_size = unique(node + 1, node + node_size + 1) - node - 1;
     for (int i = 1; i <= node_size; i++)
@@ -87,6 +88,11 @@ void read_data()
         GUV[u].push_back(v_arr[i]);
         GVU[v].push_back(u_arr[i]);
     }
+#ifdef TEST
+    auto input_time_end = chrono::steady_clock::now();
+    auto input_time_diff = input_time_end - time_start;
+    cout << "prehandle cost: " << chrono::duration<double, milli>(input_time_diff).count() / 1000 << "s" << endl;
+#endif
 }
 bool cmp(ans_t &x, ans_t &y)
 {
@@ -198,6 +204,10 @@ void output_data()
 {
     freopen(test_output_path_s.c_str(), "w", stdout);
     sort(ans + 1, ans + ans_size + 1, cmp);
+
+#ifdef TEST
+    auto output_time_start = chrono::steady_clock::now();
+#endif
     printf("%d\n", ans_size);
     for (int i = 1; i <= ans_size; i++)
     {
@@ -210,11 +220,16 @@ void output_data()
         out(ans[i][len]);
         putchar('\n');
     }
+#ifdef TEST
+    freopen("CON", "w", stdout);
+    auto output_time_end = chrono::steady_clock::now();
+    auto output_time_diff = output_time_end - output_time_start;
+    cout << "output cost: " << chrono::duration<double, milli>(output_time_diff).count() / 1000 << "s" << endl;
+#endif
     return;
 }
 int main()
 {
-    auto time_start = chrono::steady_clock::now();
     read_data();
     work();
     output_data();
