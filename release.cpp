@@ -45,9 +45,9 @@ char buf[MAXSIZE], *p1, *p2;
 inline int rd()
 {
     int x = 0;
-    char c = gc();
+    int16_t c = gc();
     if (c == EOF)
-        return -1;
+        return c;
     while (!isdigit(c))
     {
         c = gc();
@@ -56,11 +56,11 @@ inline int rd()
         x = x * 10 + (c ^ 48), c = gc();
     return x;
 }
-char pbuf[1 << 20], *pp = pbuf;
+char pbuf[MAXSIZE], *pp = pbuf;
 inline void push(const char &c)
 {
-    if (pp - pbuf == 1 << 20)
-        fwrite(pbuf, 1, 1 << 20, stdout), pp = pbuf;
+    if (pp - pbuf == MAXSIZE)
+        fwrite(pbuf, 1, MAXSIZE, stdout), pp = pbuf;
     *pp++ = c;
 }
 inline void write(int x)
@@ -85,7 +85,7 @@ inline void read_data()
     while (1)
     {
         u = IO::rd();
-        if (u == -1)
+        if (u == EOF)
             break;
         v = IO::rd();
         IO::rd();
@@ -228,11 +228,12 @@ inline void output_data()
         for (j = 1; j < ans[i][0]; j++)
         {
             IO::write(ans[i][j]);
-            putchar(',');
+            IO::push(',');
         }
         IO::write(ans[i][ans[i][0]]);
-        putchar('\n');
+        IO::push('\n');
     }
+    fwrite(IO::pbuf, 1, IO::pp - IO::pbuf, stdout);
     return;
 }
 int main()
