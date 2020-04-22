@@ -35,23 +35,26 @@ namespace IO
 {
 const int MAXSIZE = 1 << 20;
 char buf[MAXSIZE], *p1, *p2;
-#define gc()                                                                 \
-    (p1 == p2 && (p2 = (p1 = buf) + fread(buf, 1, MAXSIZE, stdin), p1 == p2) \
-         ? EOF                                                               \
-         : *p1++)
+#define gc() (p1 == p2 && (p2 = (p1 = buf) + fread(buf, 1, MAXSIZE, stdin), p1 == p2) ? EOF : *p1++)
 inline int rd()
 {
     int x = 0;
     int16_t c = gc();
-    if (c == EOF)
-        return c;
     while (!isdigit(c))
     {
+        if (c == EOF)
+            return c;
         c = gc();
     }
     while (isdigit(c))
         x = x * 10 + (c ^ 48), c = gc();
     return x;
+}
+inline void rd_to_line_end()
+{
+    int16_t c = gc();
+    while (c != '\n')
+        c = gc();
 }
 char pbuf[MAXSIZE], *pp = pbuf;
 inline void push(const char &c)
@@ -85,7 +88,7 @@ inline void read_data()
         if (u == EOF)
             break;
         v = IO::rd();
-        IO::rd();
+        IO::rd_to_line_end();
         node[++node_size] = u;
         node[++node_size] = v;
         ++edge_size;
@@ -207,13 +210,6 @@ inline void work()
         }
     }
 }
-inline void out(int x)
-{
-    if (x > 9)
-        out(x / 10);
-    putchar(x % 10 + '0');
-}
-
 inline void output_data()
 {
     register int i, j;

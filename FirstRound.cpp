@@ -6,9 +6,7 @@
 #include <array>
 #include <chrono>
 #include <cmath>
-#include <map>
 #include <unordered_map>
-#include <unordered_set>
 using namespace std;
 
 auto time_start = chrono::steady_clock::now();
@@ -20,7 +18,7 @@ auto time_start = chrono::steady_clock::now();
 string input_path = "/data/test_data.txt";
 string output_path = "/projects/student/result.txt";
 #ifdef TEST
-string test_scale = "3512444";
+string test_scale = "std";
 string test_input_path_s = "./data/" + test_scale + "/test_data.txt";
 string test_output_path_s = test_input_path_s.substr(0, test_input_path_s.rfind('/')) + "/output.txt";
 #endif
@@ -70,13 +68,12 @@ inline void rd_to_line_end()
     while (c != '\n')
         c = gc();
 }
-char pbuf[MAXSIZE];
-int pp;
+char pbuf[MAXSIZE], *pp = pbuf;
 inline void push(const char &c)
 {
-    if (pp == MAXSIZE)
-        fwrite(pbuf, 1, MAXSIZE, stdout), pp = 0;
-    pbuf[pp++] = c;
+    if (pp - pbuf == MAXSIZE)
+        fwrite(pbuf, 1, MAXSIZE, stdout), pp = pbuf;
+    *pp++ = c;
 }
 inline void write(int x)
 {
@@ -249,7 +246,7 @@ inline void output_data()
         IO::write(ans[i][ans[i][0]]);
         IO::push('\n');
     }
-    fwrite(IO::pbuf, 1, IO::pp, stdout);
+    fwrite(IO::pbuf, 1, IO::pp - IO::pbuf, stdout);
 #ifdef TEST
     freopen("CON", "w", stdout);
 #ifdef LINUXOUTPUT
