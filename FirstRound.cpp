@@ -247,11 +247,12 @@ inline void output_data()
         IO::push('\n');
     }
     fwrite(IO::pbuf, 1, IO::pp - IO::pbuf, stdout);
-#ifdef TEST
-    freopen("CON", "w", stdout);
 #ifdef LINUXOUTPUT
     freopen("/dev/tty", "w", stdout);
+#else
+    freopen("CON", "w", stdout);
 #endif
+#ifdef TEST
     auto output_time_end = chrono::steady_clock::now();
     auto output_time_diff = output_time_end - output_time_start;
     cout << "output cost: " << chrono::duration<double, milli>(output_time_diff).count() / 1000 << "s" << endl;
@@ -266,9 +267,10 @@ int main()
 #ifdef TEST
     auto time_end = chrono::steady_clock::now();
     auto diff = time_end - time_start;
-    freopen("CON", "w", stdout);
 #ifdef LINUXOUTPUT
     freopen("/dev/tty", "w", stdout);
+#else
+    freopen("CON", "w", stdout);
 #endif
     printf("ans size is %d\n", ans_size);
     cout << "The program's speed: " << chrono::duration<double, milli>(diff).count() / 1000 << "s" << endl;
