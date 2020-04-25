@@ -170,8 +170,6 @@ inline void work()
             flag[GVU[i][j]] = -i;
         path[1] = i;
         dfs(i, 1, path, i);
-        // for (j = 1; j <= GVU[i][0]; j++)
-        //     flag[GVU[i][j]] = -1;
     }
 }
 inline void output_data()
