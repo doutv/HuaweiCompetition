@@ -18,7 +18,7 @@ auto time_start = chrono::steady_clock::now();
 string input_path = "/data/test_data.txt";
 string output_path = "/projects/student/result.txt";
 #ifdef TEST
-string test_scale = "std";
+string test_scale = "2755223";
 string test_input_path_s = "./data/" + test_scale + "/test_data.txt";
 string test_output_path_s = test_input_path_s.substr(0, test_input_path_s.rfind('/')) + "/output.txt";
 #endif
@@ -133,28 +133,9 @@ inline bool cmp(ans_t &x, ans_t &y)
         ++now;
     return x[now] < y[now];
 }
-void flag_traverse_dfs(int u, int depth, int target)
-{
-    if (depth <= 2)
-    {
-        register int i;
-        int v;
-        for (i = 0; i < GUV[u].size(); i++)
-        {
-            v = node_hashmap[GUV[u][i]];
-            if (!visited[v] && GUV[u][i] > target)
-            {
-                visited[v] = 1;
-                flag[v] = target;
-                flag_traverse_dfs(v, depth + 1, target);
-                visited[v] = 0;
-            }
-        }
-    }
-}
 void flag_reverse_dfs(int u, int depth, int target)
 {
-    if (depth <= 2)
+    if (depth <= 3)
     {
         register int i;
         int v;
@@ -178,7 +159,7 @@ void dfs(int u, int depth, ans_t &path, int target)
     for (i = 0; i < GUV[u].size(); i++)
     {
         v = node_hashmap[GUV[u][i]];
-        if (GUV[u][i] < target)
+        if (GUV[u][i] <= target)
             continue;
         if (flag[v] == -2 && visited[v] == 0)
         {
@@ -189,9 +170,7 @@ void dfs(int u, int depth, ans_t &path, int target)
                 ans[++ans_size] = path;
             }
         }
-        if (GUV[u][i] == target)
-            continue;
-        if (flag[v] != target && flag[v] != -2)
+        if (flag[v] != target && flag[v] != -2 && depth >= 4)
             continue;
         if (!visited[v] && depth <= 5)
         {
@@ -211,8 +190,7 @@ inline void work()
     for (i = 1; i <= node_size; i++)
     {
         target = node[i];
-        flag_traverse_dfs(i, 0, target);
-        flag_reverse_dfs(i, 0, target);
+        flag_reverse_dfs(i, 1, target);
         for (j = 0; j < GVU[i].size(); j++)
         {
             v = node_hashmap[GVU[i][j]];
@@ -223,7 +201,7 @@ inline void work()
         for (j = 0; j < GVU[i].size(); j++)
         {
             v = node_hashmap[GVU[i][j]];
-            flag[v] = target;
+            flag[v] = -1;
         }
     }
 }
