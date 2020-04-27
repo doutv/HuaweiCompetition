@@ -16,12 +16,12 @@ auto time_start = chrono::steady_clock::now();
 string input_path = "/data/test_data.txt";
 string output_path = "/projects/student/result.txt";
 #ifdef TEST
-string test_scale = "1004812";
+string test_scale = "std";
 string test_input_path_s = "./data/" + test_scale + "/test_data.txt";
 string test_output_path_s = test_input_path_s.substr(0, test_input_path_s.rfind('/')) + "/output.txt";
 #endif
 
-const int INF = 280005;
+const int INF = 50001;
 typedef long long ll;
 
 int GUV[INF][51];
@@ -93,6 +93,8 @@ inline void read_data()
             break;
         v = IO::rd();
         IO::rd_to_line_end();
+        if (u >= INF || v >= INF)
+            continue;
         GUV[u][++GUV[u][0]] = v;
         GVU[v][++GVU[v][0]] = u;
         u_max = max(u_max, u);

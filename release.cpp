@@ -9,7 +9,7 @@ using namespace std;
 string input_path = "/data/test_data.txt";
 string output_path = "/projects/student/result.txt";
 
-const int INF = 280005;
+const int INF = 50001;
 typedef long long ll;
 
 int GUV[INF][51];
@@ -81,6 +81,8 @@ inline void read_data()
             break;
         v = IO::rd();
         IO::rd_to_line_end();
+        if (u >= INF || v >= INF)
+            continue;
         GUV[u][++GUV[u][0]] = v;
         GVU[v][++GVU[v][0]] = u;
         u_max = max(u_max, u);
