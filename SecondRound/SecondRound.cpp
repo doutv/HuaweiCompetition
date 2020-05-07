@@ -11,7 +11,7 @@ using namespace std;
 
 auto time_start = chrono::steady_clock::now();
 
-// #define LINUXOUTPUT
+#define LINUXOUTPUT
 #define OUTPUT
 #define TEST
 

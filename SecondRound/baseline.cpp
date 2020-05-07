@@ -9,16 +9,18 @@ using namespace std;
 
 auto time_start = chrono::steady_clock::now();
 
-// #define LINUXOUTPUT
+#define LINUXOUTPUT
 #define OUTPUT
 #define TEST
+#define INPUTTEST
 
+#ifdef TEST
+string test_scale = "std";
+string input_path = "./data/" + test_scale + "/test_data.txt";
+string output_path = "./data/" + test_scale + "/output.txt";
+#else
 string input_path = "/data/test_data.txt";
 string output_path = "/projects/student/result.txt";
-#ifdef TEST
-string test_scale = "";
-string test_input_path_s = "./SecondRound/test_data.txt";
-string test_output_path_s = "./SecondRound/output.txt";
 #endif
 
 const int INF = 50001;
@@ -90,11 +92,11 @@ inline void write(int x)
 
 inline void read_data()
 {
-    freopen(test_input_path_s.c_str(), "r", stdin);
+    freopen(input_path.c_str(), "r", stdin);
     ll u, v;
     int ch, w;
     register int i;
-#ifdef TEST
+#ifdef INPUTTEST
     while (scanf("%d,%d,%d\n", &u, &v, &w) != EOF) {
 #else
     while (1)
@@ -109,6 +111,7 @@ inline void read_data()
             continue;
         GUV[u][++GUV[u][0]] = (v << 32) + w;
         GVU[v][++GVU[v][0]] = (u << 32) + w;
+        // cout << u << '\t' << v << endl;
         u_max = max(u_max, u);
         // cout << u << ' ' << v << endl;
     }
@@ -210,7 +213,7 @@ inline void work()
 inline void output_data()
 {
     register int i, j;
-    freopen(test_output_path_s.c_str(), "w", stdout);
+    freopen(output_path.c_str(), "w", stdout);
     sort(ans + 1, ans + ans_size + 1, cmp);
 #ifdef TEST
     auto output_time_start = chrono::steady_clock::now();
