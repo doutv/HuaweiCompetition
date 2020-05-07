@@ -6,16 +6,11 @@ const int count = 32;
 
 int main()
 {
-    long long a = 1;
-    unsigned long long  b = (a << count) + a;
-    int c = b >> count;
-    int d = a;
-    cout << a << endl;
-    cout << b << endl;
-    cout << c << endl;
-    cout << sizeof(int) << endl;
-    cout << sizeof(long) << endl;
-    cout << sizeof(unsigned long long) << endl;
+    int u, v, w;
+    freopen("./SecondRound/test_data", "r", stdin);
+    while (scanf("%d,%d,%d\n", &u, &v, &w) != EOF) {
+        cout << u << '\t' << v << '\t' << w << endl;
+    }
     system("pause");
     return 0;
 }
