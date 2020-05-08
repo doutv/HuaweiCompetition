@@ -9,13 +9,13 @@
 using namespace std;
 
 // #define LINUXOUTPUT
-// #define OUTPUT
-// #define TEST
+#define OUTPUT
+#define TEST
 
 #ifdef TEST
 #include <chrono>
 auto time_start = chrono::steady_clock::now();
-string test_scale = "9153";
+string test_scale = "697518";
 string input_path = "./data/" + test_scale + "/test_data.txt";
 string output_path = input_path.substr(0, input_path.rfind('/')) + "/output.txt";
 #else
@@ -23,7 +23,7 @@ string input_path = "/data/test_data.txt";
 string output_path = "/projects/student/result.txt";
 #endif
 
-const int MAX_EDGE = 2000005;
+const int MAX_EDGE = 1000005;
 typedef long long ll;
 const int MAX_IN_DEGREE = 101;
 const int MAX_OUT_DEGREE = 201;
@@ -40,10 +40,19 @@ unordered_map<int, int> node_hashmap;
 float c_prenode_to_node[MAX_EDGE];
 
 typedef array<int, 8> ans_t;
+
+const int ANS3_MAX = 1000005;
+const int ANS4_MAX = 1000005;
+const int ANS5_MAX = 1000005;
+const int ANS6_MAX = 1000005;
+const int ANS7_MAX = 1000005;
 int ans_size;
-// const int ANS_MAX = 20000005;
-const int ANS_MAX = 4000005;
-ans_t ans[ANS_MAX];
+int ans3[ANS3_MAX][3];
+int ans4[ANS4_MAX][4];
+int ans5[ANS5_MAX][5];
+int ans6[ANS6_MAX][6];
+int ans7[ANS7_MAX][7];
+int *ans[5] = {*ans3, *ans4, *ans5, *ans6, *ans7};
 
 int u_arr[MAX_EDGE];
 int v_arr[MAX_EDGE];
@@ -138,14 +147,6 @@ inline void read_data()
 #endif
 }
 
-inline bool cmp(ans_t &x, ans_t &y)
-{
-    int now = 0;
-    while (x[now] == y[now])
-        ++now;
-    return x[now] < y[now];
-}
-
 void flag_reverse_dfs(int u, int depth, int target, float nxtc)
 {
     // 标记倒走4步以内能到达的点
@@ -193,9 +194,13 @@ void dfs(int u, int depth, ans_t &path, int target, float prec)
             frac = c_prenode_to_node[v] / nowc;
             if (frac >= 0.2 && frac <= 3.0)
             {
-                path[0] = depth + 1;
-                path[depth + 1] = GUV[u][i][0];
-                ans[++ans_size] = path;
+                int len = depth + 1;
+                path[0] = len;
+                path[len] = GUV[u][i][0];
+                int *now_ans = ans[len - 3];
+                ++*(now_ans);
+                for (i = 1; i <= path[0]; i++)
+                    *(now_ans + len * (*now_ans) + i - 1) = path[i];
             }
         }
         if (flag[v] != target && !is_end[v] && depth >= 4)
@@ -259,22 +264,25 @@ inline void work()
 }
 inline void output_data()
 {
-    register int i, j;
+    register int i, j, k;
     freopen(output_path.c_str(), "w", stdout);
-    sort(ans + 1, ans + ans_size + 1, cmp);
 #ifdef TEST
     auto output_time_start = chrono::steady_clock::now();
 #endif
+    ans_size = **(ans3) + **(ans4) + **(ans5) + **(ans6) + **(ans7);
     printf("%d\n", ans_size);
-    for (i = 1; i <= ans_size; i++)
+    for (i = 0; i <= 4; i++)
     {
-        for (j = 1; j < ans[i][0]; j++)
+        for (j = 1; j <= *ans[i]; j++)
         {
-            IO::write(ans[i][j]);
-            IO::push(',');
+            for (k = 0; k < i + 2; k++)
+            {
+                IO::write(*(ans[i] + j * (i + 3) + k));
+                IO::push(',');
+            }
+            IO::write(*(ans[i] + j * (i + 3) + i + 2));
+            IO::push('\n');
         }
-        IO::write(ans[i][ans[i][0]]);
-        IO::push('\n');
     }
     fwrite(IO::pbuf, 1, IO::pp - IO::pbuf, stdout);
 #ifdef TEST

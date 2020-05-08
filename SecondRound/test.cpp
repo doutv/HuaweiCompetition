@@ -6,11 +6,12 @@ const int count = 32;
 
 int main()
 {
-    int u, v, w;
-    freopen("./SecondRound/test_data", "r", stdin);
-    while (scanf("%d,%d,%d\n", &u, &v, &w) != EOF) {
-        cout << u << '\t' << v << '\t' << w << endl;
-    }
-    system("pause");
+    int ans[2][3] = {{1, 2, 3}, {4, 5, 6}};
+    int *ptr[1] = {*ans};
+    int x = **ans;
+    cout << x << endl;
+    cout << *(ptr[0] + 1) << endl;
+    ++*(ptr[0] + 1);
+    cout << *(ptr[0] + 3) << endl;
     return 0;
 }
