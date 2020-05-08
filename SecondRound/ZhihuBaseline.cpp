@@ -182,7 +182,7 @@ int main()
 {
     for (int i = 1; i <= 1; i++)
     {
-        string test_scale = "639096";
+        string test_scale = "2755223";
         string input_path = "./data/" + test_scale + "/test_data.txt";
         string output_path = input_path.substr(0, input_path.rfind('/')) + "/result.txt";
         auto t = clock();

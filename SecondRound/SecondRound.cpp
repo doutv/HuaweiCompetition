@@ -9,12 +9,12 @@
 using namespace std;
 
 // #define LINUXOUTPUT
-// #define OUTPUT
-// #define TEST
+#define OUTPUT
+#define TEST
 #ifdef TEST
 #include <chrono>
 auto time_start = chrono::steady_clock::now();
-string test_scale = "639096";
+string test_scale = "697518";
 string input_path = "./data/" + test_scale + "/test_data.txt";
 string output_path = input_path.substr(0, input_path.rfind('/')) + "/output.txt";
 #else
@@ -141,8 +141,8 @@ inline bool cmp(ans_t &x, ans_t &y)
 
 void flag_reverse_dfs(int u, int depth, int target, float nxtc)
 {
-    // 标记倒走三步以内能到达的点
-    if (depth <= 3)
+    // 标记倒走4步以内能到达的点
+    if (depth <= 4)
     {
         register int i;
         int v;
@@ -153,7 +153,7 @@ void flag_reverse_dfs(int u, int depth, int target, float nxtc)
             v = node_hashmap[GVU[u][i].first];
             nowc = GVU[u][i].second;
             frac = nxtc / nowc;
-            if (frac < 0.2 || frac > 3)
+            if (frac < 0.2 || frac > 3.0)
                 continue;
             if (!visited[v] && GVU[u][i].first > target)
             {
@@ -178,20 +178,20 @@ void dfs(int u, int depth, ans_t &path, int target, float prec)
             continue;
         nowc = GUV[u][i].second;
         frac = nowc / prec;
-        if (frac < 0.2 || frac > 3)
+        if (frac < 0.2 || frac > 3.0)
             continue;
         v = node_hashmap[GUV[u][i].first];
         if (is_end[v] && visited[v] == 0)
         {
             frac = c_prenode_to_node[v] / nowc;
-            if (frac >= 0.2 && frac <= 3)
+            if (frac >= 0.2 && frac <= 3.0)
             {
                 path[0] = depth + 1;
                 path[depth + 1] = GUV[u][i].first;
                 ans[++ans_size] = path;
             }
         }
-        if (flag[v] != target && is_end[v] == 0 && depth >= 4)
+        if (flag[v] != target && !is_end[v] && depth >= 4)
             continue;
         if (!visited[v] && depth <= 5)
         {
@@ -223,7 +223,7 @@ inline void iter_st_from_node(int u, int target)
             prec = GVU[u][j].second;
             pre = node_hashmap[GVU[u][j].first];
             frac = nowc / prec;
-            if (frac >= 0.2 && frac <= 3)
+            if (frac >= 0.2 && frac <= 3.0)
             {
                 c_prenode_to_node[pre] = prec;
                 is_end[pre] = 1;
