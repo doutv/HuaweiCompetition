@@ -8,7 +8,7 @@
 #include <unordered_map>
 using namespace std;
 
-// #define LINUXOUTPUT
+#define LINUXOUTPUT
 #define OUTPUT
 #define TEST
 #ifdef TEST
@@ -284,6 +284,7 @@ inline void output_data()
 }
 int main()
 {
+    cout<<"Now running on data "+test_scale<<endl;
     read_data();
     work();
     output_data();
