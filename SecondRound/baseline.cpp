@@ -15,7 +15,7 @@ auto time_start = chrono::steady_clock::now();
 #define INPUTTEST
 
 #ifdef TEST
-string test_scale = "38252";
+string test_scale = "9153";
 string input_path = "./data/" + test_scale + "/test_data.txt";
 string output_path = "./data/" + test_scale + "/output.txt";
 #else
@@ -112,7 +112,7 @@ inline void read_data()
         GUV[u][++GUV[u][0]] = (v << 32) + w;
         GVU[v][++GVU[v][0]] = (u << 32) + w;
         u_max = max(u_max, u);
-        cout << u << ' ' << v << endl;
+        // cout << u << ' ' << v << endl;
     }
 #ifdef TEST
     auto input_time_end = chrono::steady_clock::now();

@@ -1,16 +1,20 @@
 #include <iostream>
+#include <vector>
+#include <algorithm>
+#include <array>
+#include <unordered_map>
 
 using namespace std;
 
 const int count = 32;
+int myarray[10];
 
 int main()
 {
-    int u, v, w;
-    freopen("./SecondRound/test_data", "r", stdin);
-    while (scanf("%d,%d,%d\n", &u, &v, &w) != EOF) {
-        cout << u << '\t' << v << '\t' << w << endl;
-    }
+    unordered_map<int, int> hash;
+    hash[1] = 10;
+    hash[2] = 20;
+    
     system("pause");
     return 0;
 }

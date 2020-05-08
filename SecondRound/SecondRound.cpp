@@ -14,7 +14,7 @@ using namespace std;
 #ifdef TEST
 #include <chrono>
 auto time_start = chrono::steady_clock::now();
-string test_scale = "697518";
+string test_scale = "639096";
 string input_path = "./data/" + test_scale + "/test_data.txt";
 string output_path = input_path.substr(0, input_path.rfind('/')) + "/output.txt";
 #else
