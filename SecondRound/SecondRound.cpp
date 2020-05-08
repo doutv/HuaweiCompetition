@@ -14,7 +14,7 @@ using namespace std;
 #ifdef TEST
 #include <chrono>
 auto time_start = chrono::steady_clock::now();
-string test_scale = "639096";
+string test_scale = "19630345";
 string input_path = "./data/" + test_scale + "/test_data.txt";
 string output_path = input_path.substr(0, input_path.rfind('/')) + "/output.txt";
 #else
@@ -38,8 +38,8 @@ float c_prenode_to_node[MAX_EDGE];
 
 typedef array<int, 8> ans_t;
 int ans_size;
-// const int ANS_MAX = 20000005;
-const int ANS_MAX = 4000005;
+const int ANS_MAX = 20000005;
+// const int ANS_MAX = 4000005;
 ans_t ans[ANS_MAX];
 
 int u_arr[MAX_EDGE];

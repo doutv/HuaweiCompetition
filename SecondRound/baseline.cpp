@@ -61,7 +61,8 @@ inline int rd_to_line_end()
 {
     int x = 0;
     int16_t c = gc();
-    while (c != '\n') {
+    while (c != '\n')
+    {
         if (c == EOF)
             return c;
         c = gc();
@@ -97,7 +98,8 @@ inline void read_data()
     int ch, w;
     register int i;
 #ifdef INPUTTEST
-    while (scanf("%d,%d,%d\n", &u, &v, &w) != EOF) {
+    while (scanf("%d,%d,%d\n", &u, &v, &w) != EOF)
+    {
 #else
     while (1)
     {
@@ -111,6 +113,7 @@ inline void read_data()
             continue;
         GUV[u][++GUV[u][0]] = (v << 32) + w;
         GVU[v][++GVU[v][0]] = (u << 32) + w;
+        // cout << u << '\t' << v << endl;
         u_max = max(u_max, u);
         // cout << u << ' ' << v << endl;
     }
@@ -127,7 +130,7 @@ inline bool cmp(ans_t &x, ans_t &y)
         ++now;
     return x[now] < y[now];
 }
-void flag_reverse_dfs(int u, int depth, int target, int a_amount=0)
+void flag_reverse_dfs(int u, int depth, int target, int a_amount = 0)
 {
     register int i;
     int v, w;
@@ -135,7 +138,8 @@ void flag_reverse_dfs(int u, int depth, int target, int a_amount=0)
     {
         v = GVU[u][i] >> 32;
         w = GVU[u][i] & W;
-        if (0.2 <= float(a_amount)/w && float(a_amount)/w <= 3 || (!a_amount)) {
+        if (0.2 <= float(a_amount) / w && float(a_amount) / w <= 3 || (!a_amount))
+        {
             if (!visited[v] && v > target)
             {
                 visited[v] = 1;
@@ -147,7 +151,7 @@ void flag_reverse_dfs(int u, int depth, int target, int a_amount=0)
         }
     }
 }
-void dfs(int u, int depth, ans_t &path, int target, int p_amount=0, int init_amount=0)
+void dfs(int u, int depth, ans_t &path, int target, int p_amount = 0, int init_amount = 0)
 {
     register int i;
     int v, w;
@@ -157,25 +161,26 @@ void dfs(int u, int depth, ans_t &path, int target, int p_amount=0, int init_amo
         w = GUV[u][i] & W;
         if (v <= target)
             continue;
-        if (p_amount) {
+        if (p_amount)
+        {
             // cout << w/p_amount <<endl;
-            if ((float(w)/p_amount < 0.2) || (float(w)/p_amount > 3)) {
+            if ((float(w) / p_amount < 0.2) || (float(w) / p_amount > 3))
+            {
                 continue;
             }
         }
-        if (!init_amount) {
+        if (!init_amount)
+        {
             init_amount = w;
         }
-        if ((flag[v]>>32) == target + 1 && visited[v] == 0)
+        if ((flag[v] >> 32) == target + 1 && visited[v] == 0)
         {
             if (depth >= 2)
             {
                 int last_amount = flag[v] & W;
                 // cout << float(init_amount)/float(last_amount) << endl;
-                if (0.2 <= float(init_amount)/last_amount
-                    && float(init_amount)/last_amount <= 3
-                    && 0.2 <= float(last_amount)/w
-                    && float(last_amount)/w <= 3) {
+                if (0.2 <= float(init_amount) / last_amount && float(init_amount) / last_amount <= 3 && 0.2 <= float(last_amount) / w && float(last_amount) / w <= 3)
+                {
                     path[0] = depth + 1;
                     path[depth + 1] = v;
                     ans[++ans_size] = path;
@@ -204,7 +209,7 @@ inline void work()
             continue;
         flag_reverse_dfs(i, 1, i);
         for (j = 1; j <= GVU[i][0]; j++)
-            flag[GVU[i][j]>>32] = ((i+1)<<32) + (GVU[i][j]&W);
+            flag[GVU[i][j] >> 32] = ((i + 1) << 32) + (GVU[i][j] & W);
         path[1] = i;
         dfs(i, 1, path, i);
     }
