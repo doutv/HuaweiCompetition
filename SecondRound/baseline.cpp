@@ -15,7 +15,7 @@ auto time_start = chrono::steady_clock::now();
 #define INPUTTEST
 
 #ifdef TEST
-string test_scale = "std";
+string test_scale = "38252";
 string input_path = "./data/" + test_scale + "/test_data.txt";
 string output_path = "./data/" + test_scale + "/output.txt";
 #else
@@ -23,7 +23,7 @@ string input_path = "/data/test_data.txt";
 string output_path = "/projects/student/result.txt";
 #endif
 
-const int INF = 50001;
+const int INF = 5000001;
 const unsigned int W = 4294967295;
 typedef long long ll;
 
@@ -111,9 +111,8 @@ inline void read_data()
             continue;
         GUV[u][++GUV[u][0]] = (v << 32) + w;
         GVU[v][++GVU[v][0]] = (u << 32) + w;
-        // cout << u << '\t' << v << endl;
         u_max = max(u_max, u);
-        // cout << u << ' ' << v << endl;
+        cout << u << ' ' << v << endl;
     }
 #ifdef TEST
     auto input_time_end = chrono::steady_clock::now();
@@ -140,7 +139,7 @@ void flag_reverse_dfs(int u, int depth, int target, int a_amount=0)
             if (!visited[v] && v > target)
             {
                 visited[v] = 1;
-                flag[v] = target;
+                flag[v] = target + 1;
                 if (depth <= 2)
                     flag_reverse_dfs(v, depth + 1, target, w);
                 visited[v] = 0;
@@ -167,7 +166,7 @@ void dfs(int u, int depth, ans_t &path, int target, int p_amount=0, int init_amo
         if (!init_amount) {
             init_amount = w;
         }
-        if ((flag[v]>>32) == target && visited[v] == 0)
+        if ((flag[v]>>32) == target + 1 && visited[v] == 0)
         {
             if (depth >= 2)
             {
@@ -183,7 +182,7 @@ void dfs(int u, int depth, ans_t &path, int target, int p_amount=0, int init_amo
                 }
             }
         }
-        if (flag[v] != target && flag[v] != -target && depth >= 4)
+        if (flag[v] != target + 1 && flag[v] != -(target + 1) && depth >= 4)
             continue;
         if (!visited[v] && depth <= 5)
         {
@@ -205,7 +204,7 @@ inline void work()
             continue;
         flag_reverse_dfs(i, 1, i);
         for (j = 1; j <= GVU[i][0]; j++)
-            flag[GVU[i][j]>>32] = (i<<32) + (GVU[i][j]&W);
+            flag[GVU[i][j]>>32] = ((i+1)<<32) + (GVU[i][j]&W);
         path[1] = i;
         dfs(i, 1, path, i);
     }
