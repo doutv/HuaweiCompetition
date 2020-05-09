@@ -2,6 +2,9 @@
 
 # Second Round
 
+## TODO
++ 拓扑排序删掉入度为0的点
++ 直接在初赛方案上面加上金额约束试试
 ## analysis
 + 先把离散化加回来，因为不确定数据范围，ID是否<=INF
 + 最大环数2000万，线上数据有待测试
@@ -17,3 +20,4 @@
 
 ## resources
 + https://zhuanlan.zhihu.com/p/125764650
++ https://blog.csdn.net/qq_34914551/article/details/105788200
