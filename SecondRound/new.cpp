@@ -32,17 +32,66 @@ unordered_map<ll, bool> visited;
 unordered_map<ll, ll> flag;
 int ans_size;
 
+namespace IO
+{
+const int MAXSIZE = 1 << 20;
+char buf[MAXSIZE], *p1, *p2;
+#define gc() (p1 == p2 && (p2 = (p1 = buf) + fread(buf, 1, MAXSIZE, stdin), p1 == p2) ? EOF : *p1++)
+inline int rd()
+{
+    int x = 0;
+    int16_t c = gc();
+    while (!isdigit(c))
+    {
+        if (c == EOF)
+            return c;
+        c = gc();
+    }
+    while (isdigit(c))
+        x = x * 10 + (c ^ 48), c = gc();
+    return x;
+}
+inline void rd_to_line_end()
+{
+    int16_t c = gc();
+    while (c != '\n')
+        c = gc();
+}
+char pbuf[MAXSIZE], *pp = pbuf;
+inline void push(const char &c)
+{
+    if (pp - pbuf == MAXSIZE)
+        fwrite(pbuf, 1, MAXSIZE, stdout), pp = pbuf;
+    *pp++ = c;
+}
+inline void write(int x)
+{
+    static int sta[35];
+    int top = 0;
+    do
+    {
+        sta[top++] = x % 10, x /= 10;
+    } while (x);
+    while (top)
+        push(sta[--top] + '0');
+}
+} // namespace IO
+
 void read_data()
 {
     long long u, v;
     int u1, v1, w;
     freopen(input_path.c_str(), "r", stdin);
-    while (scanf("%d,%d,%d\n", &u1, &v1, &w) != EOF) {
+    while (true) {
+        u1 = IO::rd();
+        if (u1 == EOF)
+            break;
+        v1 = IO::rd();
+        w = IO::rd();
         u = u1;
         v = v1;
         GUV[u].push_back((v << 32) + w);
         GVU[v].push_back((u << 32) + w);
-        // cout << u << ';' << v << endl;
     }
 #ifdef TEST
     auto input_time_end = chrono::steady_clock::now();
@@ -164,9 +213,11 @@ void output()
     printf("%d\n", ans_size);
     for (ans_t &path: ans) {
         for(int i = 1; i < path[0]; i++) {
-            printf("%d,", path[i]);
+            IO::write(path[i]);
+            IO::push(',');
         }
-        printf("%d\n", path[path[0]]);
+        IO::write(path[path[0]]);
+        IO::push('\n');
     }
 #ifdef TEST
 #ifdef LINUXOUTPUT
