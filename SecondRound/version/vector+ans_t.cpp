@@ -11,6 +11,7 @@ using namespace std;
 // #define LINUXOUTPUT
 #define OUTPUT
 #define TEST
+
 #ifdef TEST
 #include <chrono>
 auto time_start = chrono::steady_clock::now();
@@ -22,8 +23,10 @@ string input_path = "/data/test_data.txt";
 string output_path = "/projects/student/result.txt";
 #endif
 
-const int MAX_EDGE = 2000005;
 typedef long long ll;
+typedef array<int, 8> ans_t;
+
+const int MAX_EDGE = 2000005;
 vector<pair<int, int>> GUV[MAX_EDGE];
 vector<pair<int, int>> GVU[MAX_EDGE];
 int edge_size;
@@ -36,7 +39,6 @@ int node[MAX_EDGE * 2];
 unordered_map<int, int> node_hashmap;
 float c_prenode_to_node[MAX_EDGE];
 
-typedef array<int, 8> ans_t;
 int ans_size;
 const int ANS_MAX = 20000005;
 // const int ANS_MAX = 4000005;
