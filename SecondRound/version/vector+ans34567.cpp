@@ -26,11 +26,9 @@ string output_path = "/projects/student/result.txt";
 typedef long long ll;
 typedef array<int, 8> ans_t;
 
-const int MAX_EDGE = 200005;
-const int MAX_IN_DEGREE = 101;
-const int MAX_OUT_DEGREE = 201;
-int GUV[MAX_EDGE][MAX_OUT_DEGREE][2];
-int GVU[MAX_EDGE][MAX_IN_DEGREE][2];
+const int MAX_EDGE = 2000005;
+vector<pair<int, int>> GUV[MAX_EDGE];
+vector<pair<int, int>> GVU[MAX_EDGE];
 int edge_size;
 
 bool visited[MAX_EDGE];
@@ -133,12 +131,8 @@ inline void read_data()
     {
         u = node_hashmap[u_arr[i]];
         v = node_hashmap[v_arr[i]];
-        ++GUV[u][0][0];
-        GUV[u][GUV[u][0][0]][0] = v_arr[i];
-        GUV[u][GUV[u][0][0]][1] = c_arr[i];
-        ++GVU[v][0][0];
-        GVU[v][GVU[v][0][0]][0] = u_arr[i];
-        GVU[v][GVU[v][0][0]][1] = c_arr[i];
+        GUV[u].push_back(make_pair(v_arr[i], c_arr[i]));
+        GVU[v].push_back(make_pair(u_arr[i], c_arr[i]));
     }
 #ifdef TEST
     auto input_time_end = chrono::steady_clock::now();
@@ -156,14 +150,14 @@ void flag_reverse_dfs(int u, int depth, int target, float nxtc)
         int v;
         float nowc;
         float frac;
-        for (i = 1; i <= GVU[u][0][0]; i++)
+        for (i = 0; i < GVU[u].size(); i++)
         {
-            v = node_hashmap[GVU[u][i][0]];
-            nowc = GVU[u][i][1];
+            v = node_hashmap[GVU[u][i].first];
+            nowc = GVU[u][i].second;
             frac = nxtc / nowc;
             if (frac < 0.2 || frac > 3.0)
                 continue;
-            if (!visited[v] && GVU[u][i][0] > target)
+            if (!visited[v] && GVU[u][i].first > target)
             {
                 visited[v] = 1;
                 flag[v] = target;
@@ -180,22 +174,22 @@ void dfs(int u, int depth, ans_t &path, int target, float prec)
     register int i, j;
     int v;
     float nowc, frac;
-    for (i = 1; i <= GUV[u][0][0]; i++)
+    for (i = 0; i < GUV[u].size(); i++)
     {
-        if (GUV[u][i][0] <= target)
+        if (GUV[u][i].first <= target)
             continue;
-        nowc = GUV[u][i][1];
+        nowc = GUV[u][i].second;
         frac = nowc / prec;
         if (frac < 0.2 || frac > 3.0)
             continue;
-        v = node_hashmap[GUV[u][i][0]];
+        v = node_hashmap[GUV[u][i].first];
         if (is_end[v] && visited[v] == 0)
         {
             frac = c_prenode_to_node[v] / nowc;
             if (frac >= 0.2 && frac <= 3.0)
             {
                 int len = depth + 1;
-                path[len] = GUV[u][i][0];
+                path[len] = GUV[u][i].first;
                 int *now_ans = ans[len - 3];
                 ++*(now_ans);
                 for (j = 1; j <= len; j++)
@@ -207,7 +201,7 @@ void dfs(int u, int depth, ans_t &path, int target, float prec)
         if (!visited[v] && depth <= 5)
         {
             visited[v] = 1;
-            path[depth + 1] = GUV[u][i][0];
+            path[depth + 1] = GUV[u][i].first;
             dfs(v, depth + 1, path, target, nowc);
             visited[v] = 0;
         }
@@ -221,18 +215,18 @@ inline void iter_st_from_node(int u, int target)
     register int i, j;
     float prec, nowc, frac;
     int pre, nxt;
-    for (i = 1; i <= GUV[u][0][0]; i++)
+    for (i = 0; i < GUV[u].size(); i++)
     {
-        if (GUV[u][i][0] < target || GVU[u][0][0] == 0)
+        if (GUV[u][i].first < target || GVU[u].size() == 0)
             continue;
-        nowc = GUV[u][i][1];
+        nowc = GUV[u][i].second;
         memset(is_end, 0, node_size + 5);
-        for (j = 1; j <= GVU[u][0][0]; j++)
+        for (j = 0; j < GVU[u].size(); j++)
         {
-            if (GVU[u][j][0] < target)
+            if (GVU[u][j].first < target)
                 continue;
-            prec = GVU[u][j][1];
-            pre = node_hashmap[GVU[u][j][0]];
+            prec = GVU[u][j].second;
+            pre = node_hashmap[GVU[u][j].first];
             frac = nowc / prec;
             if (frac >= 0.2 && frac <= 3.0)
             {
@@ -244,8 +238,8 @@ inline void iter_st_from_node(int u, int target)
             }
         }
         path[1] = target;
-        path[2] = GUV[u][i][0];
-        nxt = node_hashmap[GUV[u][i][0]];
+        path[2] = GUV[u][i].first;
+        nxt = node_hashmap[GUV[u][i].first];
         visited[nxt] = 1;
         dfs(nxt, 2, path, target, nowc);
         visited[nxt] = 0;
