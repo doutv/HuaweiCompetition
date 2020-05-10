@@ -3,8 +3,9 @@
 # Second Round
 
 ## TODO
-+ 拓扑排序删掉入度为0的点
++ AC 拓扑排序删掉入度为0的点
 + 直接在初赛方案上面加上金额约束试试，先找环，找完环后再根据金额约束去掉一些环
++ 不用除法来判断金额
 ## Score
 ### 10号前
 1. 91 [vector+ans_t](./version/vector+ans_t.cpp)
