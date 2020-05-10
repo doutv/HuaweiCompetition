@@ -8,12 +8,12 @@
 using namespace std;
 
 #define TEST
-#define LINUXOUTPUT
+// #define LINUXOUTPUT
 
 #ifdef TEST
 #include <chrono>
 auto time_start = chrono::steady_clock::now();
-string scale("9153");
+string scale("639096");
 string input_path = "./data/" + scale + "/test_data.txt";
 string output_path = "./data/" + scale + "/output.txt";
 #else
@@ -24,9 +24,9 @@ string output_path = "/projects/student/result.txt";
 
 typedef long long ll;
 typedef unordered_map<ll, vector<ll>> unvec;
-typedef array<ll, 8> ans_t;
+typedef array<int, 8> ans_t;
 const ll W = 4294967295;
-vector<ans_t> ans;
+vector<ans_t> ANS[5];
 unvec GUV, GVU;
 unordered_map<ll, bool> visited;
 unordered_map<ll, ll> flag;
@@ -115,7 +115,7 @@ void r_dfs(ll v, int depth, ll target, ll a_amount=0)
         if (visited.find(u) != visited.end()) {
             continue;
         }
-        if (a_amount) {
+        if (depth) {
             if (float(a_amount)/w < 0.2 || float(a_amount)/w > 3) {
                 continue;
             }
@@ -167,7 +167,7 @@ void dfs(ll u, int depth, ll target, ans_t &path,ll p_amount=0, ll init_amount=0
                     && float(last_amount)/w >= 0.2
                     && float(last_amount)/w <= 3) {
                     path[++path[0]] = v;
-                    ans.push_back(path);
+                    ANS[path[0]-3].push_back(path);
                     path[0]--;
                     ans_size++;
 
@@ -209,16 +209,19 @@ void output()
 #ifdef TEST
     auto output_time_start = chrono::steady_clock::now();
 #endif
-    sort(ans.begin(), ans.end(), cmp);
     printf("%d\n", ans_size);
-    for (ans_t &path: ans) {
-        for(int i = 1; i < path[0]; i++) {
-            IO::write(path[i]);
-            IO::push(',');
+    for (vector<ans_t> & ans: ANS) {
+        sort(ans.begin(), ans.end(), cmp);
+        for (ans_t &path: ans) {
+            for(int i = 1; i < path[0]; i++) {
+                IO::write(path[i]);
+                IO::push(',');
+            }
+            IO::write(path[path[0]]);
+            IO::push('\n');
         }
-        IO::write(path[path[0]]);
-        IO::push('\n');
     }
+    fwrite(IO::pbuf, 1, IO::pp - IO::pbuf, stdout);
 #ifdef TEST
 #ifdef LINUXOUTPUT
     freopen("/dev/tty", "w", stdout);

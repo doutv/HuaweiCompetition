@@ -9,14 +9,14 @@
 using namespace std;
 
 // #define LINUXOUTPUT
-#define OUTPUT
-#define TEST
+// #define OUTPUT
+// #define TEST
 
 #ifdef TEST
 #include <chrono>
 auto time_start = chrono::steady_clock::now();
-string test_scale = "9153";
-string input_path = "./data/" + test_scale + "/test_data.txt";
+string test_scale = "std";
+string input_path = "../data/" + test_scale + "/test_data.txt";
 string output_path = input_path.substr(0, input_path.rfind('/')) + "/output.txt";
 #else
 string input_path = "/data/test_data.txt";
@@ -286,7 +286,9 @@ inline void output_data()
 }
 int main()
 {
+#ifdef TEST
     cout << "Now running on data " + test_scale << endl;
+#endif
     read_data();
     work();
     output_data();

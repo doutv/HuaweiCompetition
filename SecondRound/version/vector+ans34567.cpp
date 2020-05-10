@@ -9,14 +9,14 @@
 using namespace std;
 
 // #define LINUXOUTPUT
-#define OUTPUT
-#define TEST
+// #define OUTPUT
+// #define TEST
 
 #ifdef TEST
 #include <chrono>
 auto time_start = chrono::steady_clock::now();
-string test_scale = "697518";
-string input_path = "./data/" + test_scale + "/test_data.txt";
+string test_scale = "std";
+string input_path = "../data/" + test_scale + "/test_data.txt";
 string output_path = input_path.substr(0, input_path.rfind('/')) + "/output.txt";
 #else
 string input_path = "/data/test_data.txt";
@@ -39,11 +39,11 @@ int node[MAX_EDGE * 2];
 unordered_map<int, int> node_hashmap;
 float c_prenode_to_node[MAX_EDGE];
 
-const int ANS3_MAX = 1000005;
-const int ANS4_MAX = 1000005;
-const int ANS5_MAX = 1000005;
-const int ANS6_MAX = 1000005;
-const int ANS7_MAX = 1000005;
+const int ANS3_MAX = 10000005;
+const int ANS4_MAX = 10000005;
+const int ANS5_MAX = 10000005;
+const int ANS6_MAX = 10000005;
+const int ANS7_MAX = 10000005;
 int ans_size;
 int ans3[ANS3_MAX * 3];
 int ans4[ANS4_MAX * 4];
