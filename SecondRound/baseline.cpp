@@ -9,9 +9,9 @@ using namespace std;
 
 auto time_start = chrono::steady_clock::now();
 
-#define LINUXOUTPUT
-#define OUTPUT
-#define TEST
+// #define LINUXOUTPUT
+// #define OUTPUT
+// #define TEST
 #define INPUTTEST
 
 #ifdef TEST
@@ -27,8 +27,8 @@ const int INF = 5000001;
 const unsigned int W = 4294967295;
 typedef long long ll;
 
-unsigned long long GUV[INF][51];
-unsigned long long GVU[INF][51];
+unsigned long long GUV[INF][300];
+unsigned long long GVU[INF][200];
 
 bool visited[INF];
 ll flag[INF];
@@ -173,7 +173,7 @@ void dfs(int u, int depth, ans_t &path, int target, int p_amount = 0, int init_a
         {
             init_amount = w;
         }
-        if ((flag[v] >> 32) == target + 1 && visited[v] == 0)
+        if ((flag[v]>>32) == target + 1 && visited[v] == 0)
         {
             if (depth >= 2)
             {
@@ -209,7 +209,7 @@ inline void work()
             continue;
         flag_reverse_dfs(i, 1, i);
         for (j = 1; j <= GVU[i][0]; j++)
-            flag[GVU[i][j] >> 32] = ((i + 1) << 32) + (GVU[i][j] & W);
+            flag[GVU[i][j]>>32] = ((i+1)<<32) + (GVU[i][j]&W);
         path[1] = i;
         dfs(i, 1, path, i);
     }
