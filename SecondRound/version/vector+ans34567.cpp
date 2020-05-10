@@ -9,13 +9,13 @@
 using namespace std;
 
 // #define LINUXOUTPUT
-// #define OUTPUT
-// #define TEST
+#define OUTPUT
+#define TEST
 
 #ifdef TEST
 #include <chrono>
 auto time_start = chrono::steady_clock::now();
-string test_scale = "std";
+string test_scale = "639096";
 string input_path = "../data/" + test_scale + "/test_data.txt";
 string output_path = input_path.substr(0, input_path.rfind('/')) + "/output.txt";
 #else
@@ -26,7 +26,7 @@ string output_path = "/projects/student/result.txt";
 typedef long long ll;
 typedef array<int, 8> ans_t;
 
-const int MAX_EDGE = 2000005;
+const int MAX_EDGE = 200005;
 vector<pair<int, int>> GUV[MAX_EDGE];
 vector<pair<int, int>> GVU[MAX_EDGE];
 int edge_size;

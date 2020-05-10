@@ -9,8 +9,8 @@
 using namespace std;
 
 // #define LINUXOUTPUT
-// #define OUTPUT
-// #define TEST
+#define OUTPUT
+#define TEST
 
 #ifdef TEST
 #include <chrono>
