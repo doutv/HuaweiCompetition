@@ -10,13 +10,13 @@
 using namespace std;
 
 // #define LINUXOUTPUT
-#define OUTPUT
-#define TEST
-
+// #define OUTPUT
+// #define TEST
+#define GUESSDATA
 #ifdef TEST
 #include <chrono>
 auto time_start = chrono::steady_clock::now();
-string test_scale = "9153";
+string test_scale = "19630345";
 string input_path = "../data/" + test_scale + "/test_data.txt";
 string output_path = input_path.substr(0, input_path.rfind('/')) + "/output.txt";
 #else
@@ -131,9 +131,14 @@ inline void read_data()
         GUV[u].push_back(make_pair(v_arr[i], c_arr[i]));
         GVU[v].push_back(make_pair(u_arr[i], c_arr[i]));
     }
+#ifdef GUESSDATA
+#include <unistd.h>
+    usleep(node_size / 100);
+#endif
     // Topological sorting
     // 删掉所有入度/出度为0的点
-    queue<int> q;
+    queue<int>
+        q;
     for (i = 1; i <= node_size; i++)
     {
         if (!in_degree[i] && out_degree[i])
