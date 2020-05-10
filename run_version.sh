@@ -1,4 +1,4 @@
 cd /root/HuaweiCompetition/SecondRound/version
-g++ -O3 ./vector+ans34567.cpp -o test
+g++ -O3 ./vector+ans_t.cpp -o test
 ./test
 
