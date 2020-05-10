@@ -9,8 +9,8 @@
 using namespace std;
 
 // #define LINUXOUTPUT
-#define OUTPUT
-#define TEST
+// #define OUTPUT
+// #define TEST
 
 #ifdef TEST
 #include <chrono>
@@ -26,8 +26,8 @@ string output_path = "/projects/student/result.txt";
 typedef long long ll;
 typedef array<int, 8> ans_t;
 
-const int MAX_EDGE = 200005;
-const int MAX_IN_DEGREE = 101;
+const int MAX_EDGE = 1000005;
+const int MAX_IN_DEGREE = 201;
 const int MAX_OUT_DEGREE = 201;
 int GUV[MAX_EDGE][MAX_OUT_DEGREE][2];
 int GVU[MAX_EDGE][MAX_IN_DEGREE][2];
@@ -41,11 +41,11 @@ int node[MAX_EDGE * 2];
 unordered_map<int, int> node_hashmap;
 float c_prenode_to_node[MAX_EDGE];
 
-const int ANS3_MAX = 1000005;
-const int ANS4_MAX = 1000005;
-const int ANS5_MAX = 1000005;
-const int ANS6_MAX = 1000005;
-const int ANS7_MAX = 1000005;
+const int ANS3_MAX = 20000005;
+const int ANS4_MAX = 20000005;
+const int ANS5_MAX = 20000005;
+const int ANS6_MAX = 20000005;
+const int ANS7_MAX = 20000005;
 int ans_size;
 int ans3[ANS3_MAX * 3];
 int ans4[ANS4_MAX * 4];
