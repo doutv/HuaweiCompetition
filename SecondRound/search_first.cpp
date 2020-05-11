@@ -15,8 +15,8 @@ using namespace std;
 #ifdef TEST
 #include <chrono>
 auto time_start = chrono::steady_clock::now();
-string test_scale = "639096";
-string input_path = "../data/" + test_scale + "/test_data.txt";
+string test_scale = "697518";
+string input_path = "./data/" + test_scale + "/test_data.txt";
 string output_path = input_path.substr(0, input_path.rfind('/')) + "/output.txt";
 #else
 string input_path = "/data/test_data.txt";
@@ -26,35 +26,26 @@ string output_path = "/projects/student/result.txt";
 typedef long long ll;
 typedef array<int, 8> ans_t;
 
-const int MAX_EDGE = 200005;
+const int MAX_EDGE = 2000005;
 vector<pair<int, int>> GUV[MAX_EDGE];
 vector<pair<int, int>> GVU[MAX_EDGE];
 int edge_size;
 
 bool visited[MAX_EDGE];
-int flag[MAX_EDGE];
-bool is_end[MAX_EDGE];
+int flag[MAX_EDGE][2];
 int node_size;
 int node[MAX_EDGE * 2];
 unordered_map<int, int> node_hashmap;
-float c_prenode_to_node[MAX_EDGE];
 
-const int ANS3_MAX = 10000005;
-const int ANS4_MAX = 10000005;
-const int ANS5_MAX = 10000005;
-const int ANS6_MAX = 10000005;
-const int ANS7_MAX = 10000005;
-int ans_size;
-int ans3[ANS3_MAX * 3];
-int ans4[ANS4_MAX * 4];
-int ans5[ANS5_MAX * 5];
-int ans6[ANS6_MAX * 6];
-int ans7[ANS7_MAX * 7];
-int *ans[5] = {ans3, ans4, ans5, ans6, ans7};
+const int ANS_MAX = 10000005;
+int ans_size[5];
+ans_t ans[5][ANS_MAX];
 
 int u_arr[MAX_EDGE];
 int v_arr[MAX_EDGE];
 int c_arr[MAX_EDGE];
+
+int money[7];
 
 namespace IO
 {
@@ -140,140 +131,124 @@ inline void read_data()
     cout << "prehandle cost: " << chrono::duration<double, milli>(input_time_diff).count() / 1000 << "s" << endl;
 #endif
 }
-
-void flag_reverse_dfs(int u, int depth, int target, float nxtc)
+void flag_reverse_dfs(int u, int depth, int target)
 {
-    // 标记倒走4步以内能到达的点
-    if (depth <= 4)
+    if (depth <= 3)
     {
         register int i;
         int v;
-        float nowc;
-        float frac;
         for (i = 0; i < GVU[u].size(); i++)
         {
             v = node_hashmap[GVU[u][i].first];
-            nowc = GVU[u][i].second;
-            frac = nxtc / nowc;
-            if (frac < 0.2 || frac > 3.0)
-                continue;
             if (!visited[v] && GVU[u][i].first > target)
             {
                 visited[v] = 1;
-                flag[v] = target;
-                flag_reverse_dfs(v, depth + 1, target, nowc);
+                flag[v][0] = target + 1;
+                flag_reverse_dfs(v, depth + 1, target);
                 visited[v] = 0;
             }
         }
     }
 }
-
-void dfs(int u, int depth, ans_t &path, int target, float prec)
+void dfs(int u, int depth, ans_t &path, int target)
 {
-    // pre--prec-->u--nowc-->v
     register int i, j;
     int v;
-    float nowc, frac;
     for (i = 0; i < GUV[u].size(); i++)
     {
+        v = node_hashmap[GUV[u][i].first];
         if (GUV[u][i].first <= target)
             continue;
-        nowc = GUV[u][i].second;
-        frac = nowc / prec;
-        if (frac < 0.2 || frac > 3.0)
-            continue;
-        v = node_hashmap[GUV[u][i].first];
-        if (is_end[v] && visited[v] == 0)
+        if (flag[v][0] == -2 && visited[v] == 0)
         {
-            frac = c_prenode_to_node[v] / nowc;
-            if (frac >= 0.2 && frac <= 3.0)
+            if (depth >= 2)
             {
                 int len = depth + 1;
-                path[len] = GUV[u][i].first;
-                int *now_ans = ans[len - 3];
-                ++*(now_ans);
-                for (j = 1; j <= len; j++)
-                    *(now_ans + len * (*now_ans) + j - 1) = path[j];
+                path[depth] = GUV[u][i].first;
+                money[depth-1] = GUV[u][i].second;
+                money[depth] = flag[v][1];
+                bool status = 1;
+                int k, m;
+                for (k = 0; k <= depth; k++) {
+                    if (k == depth) m = 0;
+                    else m = k + 1;
+                    if (double(money[m]) / money[k] < 0.2
+                            || double(money[m]) / money[k] > 3) {
+                        status = 0;
+                        break;
+                    }
+                }
+                if (status) {
+                    ans[len-3][++ans_size[len-3]] = path; 
+                    // for (int &i: path) cout << i << ' ';
+                    // cout << endl;
+                }
             }
         }
-        if (flag[v] != target && !is_end[v] && depth >= 4)
+        if (flag[v][0] != (target + 1) && flag[v][0] != -2 && depth >= 4)
             continue;
         if (!visited[v] && depth <= 5)
         {
             visited[v] = 1;
-            path[depth + 1] = GUV[u][i].first;
-            dfs(v, depth + 1, path, target, nowc);
+            path[depth] = GUV[u][i].first;
+            money[depth-1] = GUV[u][i].second;
+            dfs(v, depth + 1, path, target);
             visited[v] = 0;
         }
     }
 }
-
-inline void iter_st_from_node(int u, int target)
-{
-    // pre--prec-->u--nowc-->nxt
-    ans_t path;
-    register int i, j;
-    float prec, nowc, frac;
-    int pre, nxt;
-    for (i = 0; i < GUV[u].size(); i++)
-    {
-        if (GUV[u][i].first < target || GVU[u].size() == 0)
-            continue;
-        nowc = GUV[u][i].second;
-        memset(is_end, 0, node_size + 5);
-        for (j = 0; j < GVU[u].size(); j++)
-        {
-            if (GVU[u][j].first < target)
-                continue;
-            prec = GVU[u][j].second;
-            pre = node_hashmap[GVU[u][j].first];
-            frac = nowc / prec;
-            if (frac >= 0.2 && frac <= 3.0)
-            {
-                c_prenode_to_node[pre] = prec;
-                is_end[pre] = 1;
-                visited[pre] = 1;
-                flag_reverse_dfs(pre, 2, target, prec);
-                visited[pre] = 0;
-            }
-        }
-        path[1] = target;
-        path[2] = GUV[u][i].first;
-        nxt = node_hashmap[GUV[u][i].first];
-        visited[nxt] = 1;
-        dfs(nxt, 2, path, target, nowc);
-        visited[nxt] = 0;
-    }
-}
 inline void work()
 {
-    int target;
+    memset(flag, -1, node_size + 5);
+    ans_t path;
+    int v, target;
     register int i, j;
     for (i = 1; i <= node_size; i++)
     {
         target = node[i];
-        iter_st_from_node(i, target);
+        flag_reverse_dfs(i, 1, target);
+        for (j = 0; j < GVU[i].size(); j++)
+        {
+            v = node_hashmap[GVU[i][j].first];
+            flag[v][0] = -2;
+            flag[v][1] = GVU[i][j].second;
+        }
+        path[0] = target;
+        dfs(i, 1, path, target);
+        for (j = 0; j < GVU[i].size(); j++)
+        {
+            v = node_hashmap[GVU[i][j].first];
+            flag[v][0] = -1;
+        }
     }
+}
+inline bool cmp(ans_t &x, ans_t &y)
+{
+    int now = 0;
+    while (x[now] == y[now])
+        ++now;
+    return x[now] < y[now];
 }
 inline void output_data()
 {
-    register int i, j, k;
+    register int i, j, k, an_size;
     freopen(output_path.c_str(), "w", stdout);
 #ifdef TEST
     auto output_time_start = chrono::steady_clock::now();
 #endif
-    ans_size = *(ans3) + *(ans4) + *(ans5) + *(ans6) + *(ans7);
-    printf("%d\n", ans_size);
+    an_size = ans_size[0]+ans_size[1]+ans_size[2]+ans_size[3]+ans_size[4];
+    printf("%d\n", an_size);
     for (i = 0; i <= 4; i++)
     {
-        for (j = 1; j <= *ans[i]; j++)
+        sort(ans[i] + 1, ans[i] + ans_size[i] + 1, cmp);
+        for (j = 1; j <= ans_size[i]; j++)
         {
             for (k = 0; k < i + 2; k++)
             {
-                IO::write(*(ans[i] + j * (i + 3) + k));
+                IO::write(ans[i][j][k]);
                 IO::push(',');
             }
-            IO::write(*(ans[i] + j * (i + 3) + i + 2));
+            IO::write(ans[i][j][i+2]);
             IO::push('\n');
         }
     }
@@ -306,7 +281,7 @@ int main()
 #else
     freopen("CON", "w", stdout);
 #endif
-    printf("ans size is %d\n", ans_size);
+    printf("ans size is %d\n", ans_size[0]+ans_size[1]+ans_size[2]+ans_size[3]+ans_size[4]);
     cout << "The program's speed: " << chrono::duration<double, milli>(diff).count() / 1000 << "s" << endl;
 #endif
     fclose(stdin);
