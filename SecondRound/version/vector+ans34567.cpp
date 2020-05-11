@@ -6,18 +6,25 @@
 #include <array>
 #include <cmath>
 #include <unordered_map>
+#include <queue>
 using namespace std;
 
 // #define LINUXOUTPUT
 #define OUTPUT
 #define TEST
+// #define GUESSDATA
 
+#ifdef GUESSDATA
+#include <chrono>
+#include <thread>
+#endif
 #ifdef TEST
+// 7 15
 #include <chrono>
 auto time_start = chrono::steady_clock::now();
-string test_scale = "639096";
-string input_path = "../data/" + test_scale + "/test_data.txt";
-string output_path = input_path.substr(0, input_path.rfind('/')) + "/output.txt";
+string test_scale;
+string input_path;
+string output_path;
 #else
 string input_path = "/data/test_data.txt";
 string output_path = "/projects/student/result.txt";
@@ -26,7 +33,7 @@ string output_path = "/projects/student/result.txt";
 typedef long long ll;
 typedef array<int, 8> ans_t;
 
-const int MAX_EDGE = 200005;
+const int MAX_EDGE = 2000005;
 vector<pair<int, int>> GUV[MAX_EDGE];
 vector<pair<int, int>> GVU[MAX_EDGE];
 int edge_size;
@@ -37,13 +44,24 @@ bool is_end[MAX_EDGE];
 int node_size;
 int node[MAX_EDGE * 2];
 unordered_map<int, int> node_hashmap;
-float c_prenode_to_node[MAX_EDGE];
+double c_prenode_to_node[MAX_EDGE];
 
+#ifdef TEST
+// data 19630345 环数
+// 1919   16032   151763   1577627  17883004
 const int ANS3_MAX = 10000005;
 const int ANS4_MAX = 10000005;
 const int ANS5_MAX = 10000005;
 const int ANS6_MAX = 10000005;
-const int ANS7_MAX = 10000005;
+const int ANS7_MAX = 20000005;
+#else
+const int ANS3_MAX = 20000005;
+const int ANS4_MAX = 20000005;
+const int ANS5_MAX = 20000005;
+const int ANS6_MAX = 20000005;
+const int ANS7_MAX = 20000005;
+#endif
+
 int ans_size;
 int ans3[ANS3_MAX * 3];
 int ans4[ANS4_MAX * 4];
@@ -56,6 +74,8 @@ int u_arr[MAX_EDGE];
 int v_arr[MAX_EDGE];
 int c_arr[MAX_EDGE];
 
+int in_degree[MAX_EDGE * 2];
+int out_degree[MAX_EDGE * 2];
 namespace IO
 {
 const int MAXSIZE = 1 << 20;
@@ -101,12 +121,16 @@ inline void write(int x)
 }
 } // namespace IO
 
+static bool cmp(pair<int, int> a, pair<int, int> b)
+{
+    return a.first < b.first;
+}
 inline void read_data()
 {
     freopen(input_path.c_str(), "r", stdin);
     int u, v, c;
     int ch;
-    register int i;
+    register int i, j;
     while (1)
     {
         u = IO::rd();
@@ -131,31 +155,93 @@ inline void read_data()
     {
         u = node_hashmap[u_arr[i]];
         v = node_hashmap[v_arr[i]];
+        ++in_degree[v];
+        ++out_degree[u];
         GUV[u].push_back(make_pair(v_arr[i], c_arr[i]));
         GVU[v].push_back(make_pair(u_arr[i], c_arr[i]));
     }
+    for (i = 1; i <= node_size; i++)
+    {
+        if (GUV[i].size())
+            sort(GUV[i].begin(), GUV[i].end(), cmp);
+        if (GVU[i].size())
+            sort(GVU[i].begin(), GVU[i].end(), cmp);
+    }
+#ifdef GUESSDATA
+    // this_thread::sleep_for(chrono::milliseconds(node_size));   //node_size=29W
+    int max_in_degree = 0, max_out_degree = 0;
+    for (i = 1; i <= node_size; i++)
+    {
+        max_in_degree = max(in_degree[i], max_in_degree);
+        max_out_degree = max(out_degree[i], max_out_degree);
+    }
+    this_thread::sleep_for(chrono::milliseconds(max_in_degree * 100));
+#endif
+    // Topological sorting
+    queue<int> q;
+    for (i = 1; i <= node_size; i++)
+    {
+        if (!in_degree[i] && out_degree[i])
+            q.push(i);
+    }
+    while (!q.empty())
+    {
+        u = q.front();
+        q.pop();
+        for (j = 0; j < GUV[u].size(); j++)
+        {
+            v = node_hashmap[GUV[u][j].first];
+            --in_degree[v];
+            if (!in_degree[v] && out_degree[v])
+                q.push(v);
+        }
+    }
+    for (i = 1; i <= node_size; i++)
+    {
+        if (!out_degree[i] && in_degree[i])
+            q.push(i);
+    }
+    while (!q.empty())
+    {
+        u = q.front();
+        q.pop();
+        for (j = 0; j < GVU[u].size(); j++)
+        {
+            v = node_hashmap[GVU[u][j].first];
+            --out_degree[v];
+            if (!out_degree[v] && in_degree[v])
+                q.push(v);
+        }
+    }
 #ifdef TEST
+    int cnt = 0;
+    for (i = 1; i <= node_size; i++)
+    {
+        if (!in_degree[i] || !out_degree[i])
+            ++cnt;
+    }
+    printf("Topological sort cut %d points\n", cnt);
     auto input_time_end = chrono::steady_clock::now();
     auto input_time_diff = input_time_end - time_start;
     cout << "prehandle cost: " << chrono::duration<double, milli>(input_time_diff).count() / 1000 << "s" << endl;
 #endif
 }
 
-void flag_reverse_dfs(int u, int depth, int target, float nxtc)
+void flag_reverse_dfs(int u, int depth, int target, double nxtc)
 {
-    // 标记倒走4步以内能到达的点
-    if (depth <= 4)
+    // 标记倒走3步以内能到达的点
+    if (depth <= 3)
     {
         register int i;
         int v;
-        float nowc;
-        float frac;
+        double nowc;
+        double frac;
         for (i = 0; i < GVU[u].size(); i++)
         {
             v = node_hashmap[GVU[u][i].first];
             nowc = GVU[u][i].second;
             frac = nxtc / nowc;
-            if (frac < 0.2 || frac > 3.0)
+            if (frac < 0.2 || frac > 3)
                 continue;
             if (!visited[v] && GVU[u][i].first > target)
             {
@@ -168,25 +254,25 @@ void flag_reverse_dfs(int u, int depth, int target, float nxtc)
     }
 }
 
-void dfs(int u, int depth, ans_t &path, int target, float prec)
+void dfs(int u, int depth, ans_t &path, int target, double prec)
 {
     // pre--prec-->u--nowc-->v
     register int i, j;
     int v;
-    float nowc, frac;
+    double nowc, frac;
     for (i = 0; i < GUV[u].size(); i++)
     {
         if (GUV[u][i].first <= target)
             continue;
         nowc = GUV[u][i].second;
         frac = nowc / prec;
-        if (frac < 0.2 || frac > 3.0)
+        if (frac < 0.2 || frac > 3)
             continue;
         v = node_hashmap[GUV[u][i].first];
         if (is_end[v] && visited[v] == 0)
         {
             frac = c_prenode_to_node[v] / nowc;
-            if (frac >= 0.2 && frac <= 3.0)
+            if (frac >= 0.2 && frac <= 3)
             {
                 int len = depth + 1;
                 path[len] = GUV[u][i].first;
@@ -196,7 +282,7 @@ void dfs(int u, int depth, ans_t &path, int target, float prec)
                     *(now_ans + len * (*now_ans) + j - 1) = path[j];
             }
         }
-        if (flag[v] != target && !is_end[v] && depth >= 4)
+        if (flag[v] != target && !is_end[v] && depth >= 5)
             continue;
         if (!visited[v] && depth <= 5)
         {
@@ -213,7 +299,7 @@ inline void iter_st_from_node(int u, int target)
     // pre--prec-->u--nowc-->nxt
     ans_t path;
     register int i, j;
-    float prec, nowc, frac;
+    double prec, nowc, frac;
     int pre, nxt;
     for (i = 0; i < GUV[u].size(); i++)
     {
@@ -228,7 +314,7 @@ inline void iter_st_from_node(int u, int target)
             prec = GVU[u][j].second;
             pre = node_hashmap[GVU[u][j].first];
             frac = nowc / prec;
-            if (frac >= 0.2 && frac <= 3.0)
+            if (frac >= 0.2 && frac <= 3)
             {
                 c_prenode_to_node[pre] = prec;
                 is_end[pre] = 1;
@@ -249,6 +335,8 @@ inline void work()
 {
     int target;
     register int i, j;
+    for (i = 0; i <= node_size; i++)
+        flag[i] = -1;
     for (i = 1; i <= node_size; i++)
     {
         target = node[i];
@@ -290,15 +378,16 @@ inline void output_data()
 #endif
     return;
 }
-int main()
-{
 #ifdef TEST
+int main(int argc, char **argv)
+{
+    test_scale = argv[1];
+    input_path = "../data/" + test_scale + "/test_data.txt";
+    output_path = input_path.substr(0, input_path.rfind('/')) + "/vector+ans34567.txt";
     cout << "Now running on data " + test_scale << endl;
-#endif
     read_data();
     work();
     output_data();
-#ifdef TEST
     auto time_end = chrono::steady_clock::now();
     auto diff = time_end - time_start;
 #ifdef LINUXOUTPUT
@@ -308,8 +397,18 @@ int main()
 #endif
     printf("ans size is %d\n", ans_size);
     cout << "The program's speed: " << chrono::duration<double, milli>(diff).count() / 1000 << "s" << endl;
-#endif
     fclose(stdin);
     fclose(stdout);
     return 0;
 }
+#else
+int main()
+{
+    read_data();
+    work();
+    output_data();
+    fclose(stdin);
+    fclose(stdout);
+    return 0;
+}
+#endif
