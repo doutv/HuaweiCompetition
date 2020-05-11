@@ -3,8 +3,17 @@
 # Second Round
 
 ## TODO
-+ 拓扑排序删掉入度为0的点
-+ 直接在初赛方案上面加上金额约束试试
++ AC 拓扑排序删掉入度为0的点
++ 直接在初赛方案上面加上金额约束试试，先找环，找完环后再根据金额约束去掉一些环
++ AC 不用除法来判断金额
+## Score
+### 10号前
+1. 91 [vector+ans_t](./version/vector+ans_t.cpp)
+2. 其余方案TLE
+### 10-15
+1. 699 [vector+ans_t](./version/vector+ans_t.cpp)
+2. result incorrect [vector+ans34567](./version/vector+ans34567.cpp)
+3. 785 [vector+ans_t+拓扑排序+除法改乘法](./version/vector+ans_t.cpp)
 ## analysis
 + 先把离散化加回来，因为不确定数据范围，ID是否<=INF
 + 最大环数2000万，线上数据有待测试
