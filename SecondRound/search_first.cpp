@@ -8,7 +8,7 @@
 #include <unordered_map>
 using namespace std;
 
-// #define LINUXOUTPUT
+#define LINUXOUTPUT
 #define OUTPUT
 #define TEST
 
@@ -37,18 +37,9 @@ int node_size;
 int node[MAX_EDGE * 2];
 unordered_map<int, int> node_hashmap;
 
-const int ANS3_MAX = 1000005;
-const int ANS4_MAX = 1000005;
-const int ANS5_MAX = 1000005;
-const int ANS6_MAX = 1000005;
-const int ANS7_MAX = 1000005;
+const int ANS_MAX = 20000005;
 int ans_size[5];
-ans_t ans3[ANS3_MAX];
-ans_t ans4[ANS4_MAX];
-ans_t ans5[ANS5_MAX];
-ans_t ans6[ANS6_MAX];
-ans_t ans7[ANS7_MAX];
-ans_t ans[5][ANS3_MAX];
+ans_t ans[5][ANS_MAX];
 
 int u_arr[MAX_EDGE];
 int v_arr[MAX_EDGE];
@@ -292,6 +283,18 @@ int main()
 #endif
     printf("ans size is %d\n", ans_size[0]+ans_size[1]+ans_size[2]+ans_size[3]+ans_size[4]);
     cout << "The program's speed: " << chrono::duration<double, milli>(diff).count() / 1000 << "s" << endl;
+    // cout << "char " << sizeof(char) << endl;
+    // cout << "GUV " << sizeof(GUV) << endl;
+    // cout << "GVU " << sizeof(GVU) << endl;
+    // cout << "u_arr " << sizeof(u_arr) << endl;
+    // cout << "v_arr " << sizeof(v_arr) << endl;
+    // cout << "ans " << sizeof(ans) << endl;
+    // cout << "visited " << sizeof(visited) << endl;
+    // cout << "node " << sizeof(node) << endl;
+    // cout << "node_hashmap " << sizeof(node_hashmap) << endl;
+    // cout << "space " << (sizeof(GUV)+sizeof(GVU)+sizeof(u_arr)+sizeof(v_arr)
+    //     + sizeof(ans) + sizeof(ans) + sizeof(visited) + sizeof(node))/1024/1024/float(1024)
+    //     << "GB" << endl;
 #endif
     fclose(stdin);
     fclose(stdout);
