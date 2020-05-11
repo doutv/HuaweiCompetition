@@ -8,14 +8,14 @@
 #include <unordered_map>
 using namespace std;
 
-#define LINUXOUTPUT
+// #define LINUXOUTPUT
 #define OUTPUT
 #define TEST
 
 #ifdef TEST
 #include <chrono>
 auto time_start = chrono::steady_clock::now();
-string test_scale = "697518";
+string test_scale = "639096";
 string input_path = "./data/" + test_scale + "/test_data.txt";
 string output_path = input_path.substr(0, input_path.rfind('/')) + "/output.txt";
 #else
@@ -37,9 +37,18 @@ int node_size;
 int node[MAX_EDGE * 2];
 unordered_map<int, int> node_hashmap;
 
-const int ANS_MAX = 10000005;
+const int ANS3_MAX = 1000005;
+const int ANS4_MAX = 1000005;
+const int ANS5_MAX = 1000005;
+const int ANS6_MAX = 1000005;
+const int ANS7_MAX = 1000005;
 int ans_size[5];
-ans_t ans[5][ANS_MAX];
+ans_t ans3[ANS3_MAX];
+ans_t ans4[ANS4_MAX];
+ans_t ans5[ANS5_MAX];
+ans_t ans6[ANS6_MAX];
+ans_t ans7[ANS7_MAX];
+ans_t ans[5][ANS3_MAX];
 
 int u_arr[MAX_EDGE];
 int v_arr[MAX_EDGE];
