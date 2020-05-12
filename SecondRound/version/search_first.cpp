@@ -43,7 +43,7 @@ int node_size;
 int node[MAX_EDGE * 2];
 int preu_to_u[MAX_EDGE];
 int path[8];
-double money[8];
+int money[8];
 unordered_map<int, int> node_hashmap;
 unordered_map<int, vector<edge_t>> bag2;
 bool bag3[MAX_EDGE];
@@ -172,7 +172,8 @@ inline void read_data()
     }
 #ifdef GUESSDATA
     // this_thread::sleep_for(chrono::milliseconds(node_size));   //node_size=29W
-    int max_in_degree = 0, max_out_degree = 0;
+    int max_in_degree = 0,
+        max_out_degree = 0;
     for (i = 1; i <= node_size; i++)
     {
         max_in_degree = max(in_degree[i], max_in_degree);
@@ -230,27 +231,61 @@ inline void read_data()
 #endif
 }
 int target;
+int get_GVU_lower_bound(int u)
+{
+    int l = 0, r = GVU[u].size() - 1;
+    while (l < r)
+    {
+        int mid = (l + r) / 2;
+        if (GVU[u][mid].first >= target)
+            r = mid;
+        else
+            l = mid + 1;
+    }
+    if (GVU[u][l].first <= target)
+        return GVU[u].size();
+    return l;
+}
+int get_GUV_lower_bound(int u)
+{
+    int l = 0, r = GUV[u].size() - 1;
+    while (l < r)
+    {
+        int mid = (l + r) / 2;
+        if (GUV[u][mid].first > target)
+            r = mid;
+        else
+            l = mid + 1;
+    }
+    if (GUV[u][l].first <= target)
+        return GUV[u].size();
+    return l;
+}
 void flag_reverse_dfs(int u)
 {
     // v3<--v2<--v1<--u
-    register int i = lower_bound(GVU[u].begin(), GVU[u].end(), target) - GVU[u].begin();
+    register int i = get_GVU_lower_bound(u);
     for (i; i < GVU[u].size(); i++)
     {
         // 反向第一层
         int v1 = node_hashmap[GVU[u][i].first];
+        if (!in_degree[v1] || !out_degree[v1])
+            continue;
         preu_to_u[v1] = GVU[u][i].second;
-        register int j = lower_bound(GVU[v1].begin(), GUV[v1].end(), target) - GVU[v1].begin();
+        register int j = get_GVU_lower_bound(v1);
         for (j; j < GVU[v1].size(); j++)
         {
             // 反向第二层
             // bag2[v2]存的是所有能到达u的v1
             int v2 = node_hashmap[GVU[v1][j].first];
+            if (!in_degree[v2] || !out_degree[v2])
+                continue;
             if (bag2.find(v2) == bag2.end())
-                bag2.insert({v2, vector<edge_t>{GVU[v1][j]}});
+                bag2.insert({v2, vector<edge_t>{make_pair(GVU[u][i].first, GVU[v1][j].second)}});
             else
-                bag2[v2].push_back(GVU[v1][j]);
+                bag2[v2].push_back(make_pair(GVU[u][i].first, GVU[v1][j].second));
             // 标记能到达u的第三层节点v3
-            register int k = lower_bound(GVU[v2].begin(), GVU[v2].end(), target) - GVU[v2].begin();
+            register int k = get_GVU_lower_bound(v2);
             for (k; k < GVU[v2].size(); k++)
                 bag3[node_hashmap[GVU[v2][k].first]] = 1;
         }
@@ -258,7 +293,7 @@ void flag_reverse_dfs(int u)
 }
 void dfs(int u, int depth)
 {
-    register int i = lower_bound(GUV[u].begin(), GUV[u].end(), target) - GUV[u].begin();
+    register int i = get_GUV_lower_bound(u);
     for (i; i < GUV[u].size(); i++)
     {
         int v = node_hashmap[GUV[u][i].first];
@@ -266,24 +301,24 @@ void dfs(int u, int depth)
             continue;
         if (bag2.find(v) != bag2.end())
         {
+            path[depth + 1] = GUV[u][i].first;
+            money[depth] = GUV[u][i].second;
             for (register int j = 0; j < bag2[v].size(); j++)
             {
                 if (visited[node_hashmap[bag2[v][j].first]])
                     continue;
-                path[depth + 1] = GUV[u][i].first;
+                int len = depth + 2;
                 path[depth + 2] = bag2[v][j].first;
-                money[depth] = GUV[u][i].first;
                 money[depth + 1] = bag2[v][j].second;
                 money[depth + 2] = preu_to_u[node_hashmap[bag2[v][j].first]];
                 bool valid = 1;
-                int len = depth + 2;
                 for (register int k = 1; k <= len; k++)
                 {
                     double frac;
                     if (k == len)
-                        frac = (double)money[1] / money[k];
+                        frac = (double)money[1] / (double)money[k];
                     else
-                        frac = (double)money[k + 1] / money[k];
+                        frac = (double)money[k + 1] / (double)money[k];
                     if (frac < 0.2 || frac > 3)
                     {
                         valid = 0;
@@ -301,7 +336,7 @@ void dfs(int u, int depth)
         }
         if (!bag3[v] && depth >= 4)
             continue;
-        if (!visited[v])
+        if (!visited[v] && depth <= 4)
         {
             visited[v] = 1;
             path[depth + 1] = GUV[u][i].first;
@@ -317,10 +352,10 @@ inline void work()
     register int i, j;
     for (i = 1; i <= node_size; i++)
     {
-        bag2.clear();
-        memset(bag3, 0, node_size + 5);
         if (!in_degree[i] || !out_degree[i])
             continue;
+        bag2.clear();
+        memset(bag3, 0, node_size + 5);
         target = node[i];
         flag_reverse_dfs(i);
         path[1] = target;
