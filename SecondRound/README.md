@@ -4,8 +4,9 @@
 
 ## TODO
 + 改进算法吧，算法太慢了！！！
+  + 
 + AC 拓扑排序删掉入度为0的点
-+ 直接在初赛方案上面加上金额约束试试，先找环，找完环后再根据金额约束去掉一些环
++ AC 直接在初赛方案上面加上金额约束试试，先找环，找完环后再根据金额约束去掉一些环
 ## Score
 ### 10号前
 1. 91 [vector+ans_t](./version/vector+ans_t.cpp)
@@ -35,3 +36,4 @@
 ## resources
 + https://zhuanlan.zhihu.com/p/125764650
 + https://blog.csdn.net/qq_34914551/article/details/105788200
++ https://zhuanlan.zhihu.com/p/136785097
