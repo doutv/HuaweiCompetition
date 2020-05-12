@@ -19,7 +19,7 @@ using namespace std;
 #include <thread>
 #endif
 #ifdef TEST
-// 
+// 13 32
 #include <chrono>
 auto time_start = chrono::steady_clock::now();
 string test_scale;
@@ -227,7 +227,8 @@ inline void read_data()
     cout << "prehandle cost: " << chrono::duration<double, milli>(input_time_diff).count() / 1000 << "s" << endl;
 #endif
 }
-void flag_reverse_dfs(int u, int depth, int target)
+int u, depth, target;
+void flag_reverse_dfs()
 {
     if (depth <= 3)
     {
@@ -240,13 +241,18 @@ void flag_reverse_dfs(int u, int depth, int target)
             {
                 visited[v] = 1;
                 flag[v] = target;
-                flag_reverse_dfs(v, depth + 1, target);
+                int tmp = u;
+                u = v;
+                ++depth;
+                flag_reverse_dfs();
+                --depth;
+                u = tmp;
                 visited[v] = 0;
             }
         }
     }
 }
-void dfs(int u, int depth, int target)
+void dfs()
 {
     for (register int i = 0; i < GUV[u].size(); i++)
     {
@@ -291,14 +297,19 @@ void dfs(int u, int depth, int target)
             visited[v] = 1;
             path[depth + 1] = GUV[u][i].first;
             money[depth] = GUV[u][i].second;
-            dfs(v, depth + 1, target);
+            int tmp = u;
+            u = v;
+            ++depth;
+            dfs();
+            u = tmp;
+            --depth;
             visited[v] = 0;
         }
     }
 }
 inline void work()
 {
-    int v, target;
+    int v;
     register int i, j;
     for (i = 1; i <= node_size; i++)
         flag[i] = -1;
@@ -306,8 +317,10 @@ inline void work()
     {
         if (!in_degree[i] || !out_degree[i])
             continue;
+        u = i;
+        depth = 1;
         target = node[i];
-        flag_reverse_dfs(i, 1, target);
+        flag_reverse_dfs();
         for (j = 0; j < GVU[i].size(); j++)
         {
             v = node_hashmap[GVU[i][j].first];
@@ -315,7 +328,9 @@ inline void work()
             preu_to_u[v] = GVU[i][j].second;
         }
         path[1] = target;
-        dfs(i, 1, target);
+        u = i;
+        depth = 1;
+        dfs();
         for (j = 0; j < GVU[i].size(); j++)
         {
             v = node_hashmap[GVU[i][j].first];

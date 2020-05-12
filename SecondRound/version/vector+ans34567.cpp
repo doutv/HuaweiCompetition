@@ -339,6 +339,8 @@ inline void work()
         flag[i] = -1;
     for (i = 1; i <= node_size; i++)
     {
+        if (!in_degree[i] || !out_degree[i])
+            continue;
         target = node[i];
         iter_st_from_node(i, target);
     }
