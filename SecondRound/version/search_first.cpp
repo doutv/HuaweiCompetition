@@ -227,8 +227,8 @@ inline void read_data()
     cout << "prehandle cost: " << chrono::duration<double, milli>(input_time_diff).count() / 1000 << "s" << endl;
 #endif
 }
-int u, depth, target;
-void flag_reverse_dfs()
+int target;
+void flag_reverse_dfs(int u, int depth)
 {
     if (depth <= 3)
     {
@@ -237,28 +237,27 @@ void flag_reverse_dfs()
         for (i = 0; i < GVU[u].size(); i++)
         {
             v = node_hashmap[GVU[u][i].first];
+            if (!in_degree[v] || !out_degree[v])
+                continue;
             if (!visited[v] && GVU[u][i].first > target)
             {
                 visited[v] = 1;
                 flag[v] = target;
-                int tmp = u;
-                u = v;
-                ++depth;
-                flag_reverse_dfs();
-                --depth;
-                u = tmp;
+                flag_reverse_dfs(v, depth + 1);
                 visited[v] = 0;
             }
         }
     }
 }
-void dfs()
+void dfs(int u, int depth)
 {
     for (register int i = 0; i < GUV[u].size(); i++)
     {
         if (GUV[u][i].first <= target)
             continue;
         int v = node_hashmap[GUV[u][i].first];
+        if (!in_degree[v] || !out_degree[v])
+            continue;
         if (flag[v] == -2 && visited[v] == 0)
         {
             if (depth >= 2)
@@ -297,12 +296,7 @@ void dfs()
             visited[v] = 1;
             path[depth + 1] = GUV[u][i].first;
             money[depth] = GUV[u][i].second;
-            int tmp = u;
-            u = v;
-            ++depth;
-            dfs();
-            u = tmp;
-            --depth;
+            dfs(v, depth + 1);
             visited[v] = 0;
         }
     }
@@ -317,10 +311,8 @@ inline void work()
     {
         if (!in_degree[i] || !out_degree[i])
             continue;
-        u = i;
-        depth = 1;
         target = node[i];
-        flag_reverse_dfs();
+        flag_reverse_dfs(i, 1);
         for (j = 0; j < GVU[i].size(); j++)
         {
             v = node_hashmap[GVU[i][j].first];
@@ -328,9 +320,7 @@ inline void work()
             preu_to_u[v] = GVU[i][j].second;
         }
         path[1] = target;
-        u = i;
-        depth = 1;
-        dfs();
+        dfs(i, 1);
         for (j = 0; j < GVU[i].size(); j++)
         {
             v = node_hashmap[GVU[i][j].first];

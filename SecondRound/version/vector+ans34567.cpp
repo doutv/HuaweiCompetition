@@ -9,7 +9,7 @@
 #include <queue>
 using namespace std;
 
-#define LINUXOUTPUT
+// #define LINUXOUTPUT
 #define OUTPUT
 #define TEST
 // #define GUESSDATA
@@ -19,7 +19,7 @@ using namespace std;
 #include <thread>
 #endif
 #ifdef TEST
-// 7 15
+// 9 19
 #include <chrono>
 auto time_start = chrono::steady_clock::now();
 string test_scale;
@@ -31,7 +31,6 @@ string output_path = "/projects/student/result.txt";
 #endif
 
 typedef long long ll;
-typedef array<int, 8> ans_t;
 
 const int MAX_EDGE = 2000005;
 vector<pair<int, int>> GUV[MAX_EDGE];
@@ -69,6 +68,8 @@ int ans5[ANS5_MAX * 5];
 int ans6[ANS6_MAX * 6];
 int ans7[ANS7_MAX * 7];
 int *ans[5] = {ans3, ans4, ans5, ans6, ans7};
+int path[8];
+int target;
 
 int u_arr[MAX_EDGE];
 int v_arr[MAX_EDGE];
@@ -227,7 +228,7 @@ inline void read_data()
 #endif
 }
 
-void flag_reverse_dfs(int u, int depth, int target, double nxtc)
+void flag_reverse_dfs(int u, int depth, double nxtc)
 {
     // 标记倒走3步以内能到达的点
     if (depth <= 3)
@@ -239,6 +240,8 @@ void flag_reverse_dfs(int u, int depth, int target, double nxtc)
         for (i = 0; i < GVU[u].size(); i++)
         {
             v = node_hashmap[GVU[u][i].first];
+            if (!in_degree[v] || !out_degree[v])
+                continue;
             nowc = GVU[u][i].second;
             frac = nxtc / nowc;
             if (frac < 0.2 || frac > 3)
@@ -247,14 +250,14 @@ void flag_reverse_dfs(int u, int depth, int target, double nxtc)
             {
                 visited[v] = 1;
                 flag[v] = target;
-                flag_reverse_dfs(v, depth + 1, target, nowc);
+                flag_reverse_dfs(v, depth + 1, nowc);
                 visited[v] = 0;
             }
         }
     }
 }
 
-void dfs(int u, int depth, ans_t &path, int target, double prec)
+void dfs(int u, int depth, double prec)
 {
     // pre--prec-->u--nowc-->v
     register int i, j;
@@ -264,11 +267,13 @@ void dfs(int u, int depth, ans_t &path, int target, double prec)
     {
         if (GUV[u][i].first <= target)
             continue;
+        v = node_hashmap[GUV[u][i].first];
+        if (!in_degree[v] || !out_degree[v])
+            continue;
         nowc = GUV[u][i].second;
         frac = nowc / prec;
         if (frac < 0.2 || frac > 3)
             continue;
-        v = node_hashmap[GUV[u][i].first];
         if (is_end[v] && visited[v] == 0)
         {
             frac = c_prenode_to_node[v] / nowc;
@@ -288,16 +293,15 @@ void dfs(int u, int depth, ans_t &path, int target, double prec)
         {
             visited[v] = 1;
             path[depth + 1] = GUV[u][i].first;
-            dfs(v, depth + 1, path, target, nowc);
+            dfs(v, depth + 1, nowc);
             visited[v] = 0;
         }
     }
 }
 
-inline void iter_st_from_node(int u, int target)
+inline void iter_st_from_node(int u)
 {
     // pre--prec-->u--nowc-->nxt
-    ans_t path;
     register int i, j;
     double prec, nowc, frac;
     int pre, nxt;
@@ -311,15 +315,17 @@ inline void iter_st_from_node(int u, int target)
         {
             if (GVU[u][j].first < target)
                 continue;
-            prec = GVU[u][j].second;
             pre = node_hashmap[GVU[u][j].first];
+            if (!in_degree[pre] || !out_degree[pre])
+                continue;
+            prec = GVU[u][j].second;
             frac = nowc / prec;
             if (frac >= 0.2 && frac <= 3)
             {
                 c_prenode_to_node[pre] = prec;
                 is_end[pre] = 1;
                 visited[pre] = 1;
-                flag_reverse_dfs(pre, 2, target, prec);
+                flag_reverse_dfs(pre, 2, prec);
                 visited[pre] = 0;
             }
         }
@@ -327,13 +333,12 @@ inline void iter_st_from_node(int u, int target)
         path[2] = GUV[u][i].first;
         nxt = node_hashmap[GUV[u][i].first];
         visited[nxt] = 1;
-        dfs(nxt, 2, path, target, nowc);
+        dfs(nxt, 2, nowc);
         visited[nxt] = 0;
     }
 }
 inline void work()
 {
-    int target;
     register int i, j;
     for (i = 0; i <= node_size; i++)
         flag[i] = -1;
@@ -342,7 +347,7 @@ inline void work()
         if (!in_degree[i] || !out_degree[i])
             continue;
         target = node[i];
-        iter_st_from_node(i, target);
+        iter_st_from_node(i);
     }
 }
 inline void output_data()
