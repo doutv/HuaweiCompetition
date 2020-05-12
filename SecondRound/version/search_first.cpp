@@ -19,7 +19,7 @@ using namespace std;
 #include <thread>
 #endif
 #ifdef TEST
-// 13 32
+// 3 8 181
 #include <chrono>
 auto time_start = chrono::steady_clock::now();
 string test_scale;
@@ -274,7 +274,7 @@ void dfs(int u, int depth)
         int v = node_hashmap[GUV[u][i].first];
         if (!in_degree[v] || !out_degree[v])
             continue;
-        if (bag2.find(v) != bag2.end())
+        if (!visited[v] && bag2.find(v) != bag2.end())
         {
             path[depth + 1] = GUV[u][i].first;
             money[depth] = GUV[u][i].second;
