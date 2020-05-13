@@ -3,9 +3,11 @@
 # Second Round
 
 ## TODO
++ 多线程？？？来得及学习嘛
++ 探测数据，猜一波最终数据变化不大？
 + 改进算法吧，算法太慢了！！！
-  + 3+4
-  + 存答案时直接存字符串，这样就省了输出时将int型答案转成char[]的麻烦 
+  + AC 3+4
+  + AC 存答案时直接存字符串，这样就省了输出时将int型答案转成char[]的麻烦 
 + AC 拓扑排序删掉入度为0的点
 + AC 直接在初赛方案上面加上金额约束试试，先找环，找完环后再根据金额约束去掉一些环
 ## Score
@@ -18,6 +20,7 @@
 2. result incorrect [vector+ans34567](./version/vector+ans34567.cpp)
 3. 785 [vector+ans_t+拓扑排序+除法改乘法](./version/vector+ans_t.cpp)
 4. 296 [vector+ans34567](./version/vector+ans34567.cpp)
+5. 138 [search_first_c5336c6ba76b47f884c6f191344f0aca965abe4b](./version/search_first.cpp)
 ## data
 ### 10-15
 + node_size<=29W
