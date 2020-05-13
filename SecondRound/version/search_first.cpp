@@ -10,8 +10,8 @@
 using namespace std;
 
 // #define LINUXOUTPUT
-#define OUTPUT
-#define TEST
+// #define OUTPUT
+// #define TEST
 // #define GUESSDATA
 
 #ifdef GUESSDATA
@@ -42,20 +42,21 @@ bool visited[MAX_EDGE];
 int node_size;
 int node[MAX_EDGE * 2];
 int v1_to_u[MAX_EDGE];
-int path[8];
+string path[8];
 int money[8];
 unordered_map<int, int> node_hashmap;
 unordered_map<int, vector<edge_t>> bag2;
 bool bag3[MAX_EDGE];
+int target;
 
 #ifdef TEST
 // data 19630345 环数
 // 1919   16032   151763   1577627  17883004
-const int ANS3_MAX = 1919;
-const int ANS4_MAX = 16032;
-const int ANS5_MAX = 151763;
-const int ANS6_MAX = 1577627;
-const int ANS7_MAX = 17883004;
+const int ANS3_MAX = 100000;
+const int ANS4_MAX = 100000;
+const int ANS5_MAX = 100000;
+const int ANS6_MAX = 2000000;
+const int ANS7_MAX = 20000000;
 #else
 const int ANS3_MAX = 20000005;
 const int ANS4_MAX = 20000005;
@@ -71,6 +72,7 @@ char ans6[ANS6_MAX * 6 * 10];
 char ans7[ANS7_MAX * 7 * 10];
 int ans_size[5];
 char *ans_tail[5] = {ans3, ans4, ans5, ans6, ans7};
+unordered_map<int, string> node_to_string;
 
 int u_arr[MAX_EDGE];
 int v_arr[MAX_EDGE];
@@ -98,29 +100,29 @@ namespace IO
             x = x * 10 + (c ^ 48), c = gc();
         return x;
     }
+    inline int rd_u()
+    {
+        int x = 0;
+        int16_t c = gc();
+        string u_str;
+        while (!isdigit(c))
+        {
+            if (c == EOF)
+                return c;
+            c = gc();
+        }
+        u_str += c;
+        while (isdigit(c))
+            x = x * 10 + (c ^ 48), c = gc(), u_str += c;
+        u_str.pop_back();
+        node_to_string[x] = u_str;
+        return x;
+    }
     inline void rd_to_line_end()
     {
         int16_t c = gc();
         while (c != '\n')
             c = gc();
-    }
-    char pbuf[MAXSIZE], *pp = pbuf;
-    inline void push(const char &c)
-    {
-        if (pp - pbuf == MAXSIZE)
-            fwrite(pbuf, 1, MAXSIZE, stdout), pp = pbuf;
-        *pp++ = c;
-    }
-    inline void write(int x)
-    {
-        static int sta[35];
-        int top = 0;
-        do
-        {
-            sta[top++] = x % 10, x /= 10;
-        } while (x);
-        while (top)
-            push(sta[--top] + '0');
     }
 } // namespace IO
 
@@ -135,7 +137,7 @@ inline void read_data()
     int ch;
     while (1)
     {
-        u = IO::rd();
+        u = IO::rd_u();
         if (u == EOF)
             break;
         v = IO::rd();
@@ -152,6 +154,7 @@ inline void read_data()
     for (int i = 1; i <= node_size; i++)
     {
         node_hashmap[node[i]] = i;
+        node_to_string[node[i]] = to_string(node[i]);
     }
     for (int i = 1; i <= edge_size; i++)
     {
@@ -229,7 +232,6 @@ inline void read_data()
     cout << "prehandle cost: " << chrono::duration<double, milli>(input_time_diff).count() / 1000 << "s" << endl;
 #endif
 }
-int target;
 void flag_reverse_dfs(int u)
 {
     // v3<--v2<--v1<--u
@@ -265,7 +267,7 @@ void flag_reverse_dfs(int u)
         }
     }
 }
-static int sta[11];
+int sta[11];
 void dfs(int u, int depth)
 {
     for (int i = 0; i < GUV[u].size(); i++)
@@ -277,14 +279,14 @@ void dfs(int u, int depth)
             continue;
         if (!visited[v] && bag2.find(v) != bag2.end())
         {
-            path[depth + 1] = GUV[u][i].first;
+            path[depth + 1] = node_to_string[GUV[u][i].first];
             money[depth] = GUV[u][i].second;
             for (int j = 0; j < bag2[v].size(); j++)
             {
                 if (visited[node_hashmap[bag2[v][j].first]])
                     continue;
                 int len = depth + 2;
-                path[depth + 2] = bag2[v][j].first;
+                path[depth + 2] = node_to_string[bag2[v][j].first];
                 money[depth + 1] = bag2[v][j].second;
                 money[depth + 2] = v1_to_u[node_hashmap[bag2[v][j].first]];
                 bool valid = 1;
@@ -307,18 +309,14 @@ void dfs(int u, int depth)
                     ++ans_size[len - 3];
                     for (int k = 1; k <= len; k++)
                     {
-                        int top = 0;
-                        do
+                        for (int h = 0; h < path[k].size(); h++)
                         {
-                            sta[top++] = path[k] % 10;
-                            path[k] /= 10;
-                        } while (path[k]);
-                        while (top)
-                            *(now_ans++) = sta[--top] + '0';
+                            *(now_ans++) = path[k][h];
+                        }
                         if (k < len)
                             *(now_ans++) = ',';
                         else
-                            *(now_ans++) = '\n';
+                            *(now_ans++) = 10;
                     }
                     ans_tail[len - 3] = now_ans;
                 }
@@ -329,7 +327,7 @@ void dfs(int u, int depth)
         if (!visited[v] && depth <= 4)
         {
             visited[v] = 1;
-            path[depth + 1] = GUV[u][i].first;
+            path[depth + 1] = node_to_string[GUV[u][i].first];
             money[depth] = GUV[u][i].second;
             dfs(v, depth + 1);
             visited[v] = 0;
@@ -347,7 +345,7 @@ inline void work()
         memset(bag3, 0, node_size + 5);
         target = node[i];
         flag_reverse_dfs(i);
-        path[1] = target;
+        path[1] = node_to_string[target];
         visited[i] = 1;
         dfs(i, 1);
         visited[i] = 0;
@@ -364,13 +362,8 @@ inline void output_data()
     char *ans_head[5] = {ans3, ans4, ans5, ans6, ans7};
     for (int i = 0; i <= 4; i++)
     {
-        char *now = ans_head[i];
-        while (now != ans_tail[i])
-        {
-            IO::push(*(++now));
-        }
+        fwrite(ans_head[i], 1, ans_tail[i] - ans_head[i], stdout);
     }
-    fwrite(IO::pbuf, 1, IO::pp - IO::pbuf, stdout);
 #ifdef TEST
 #ifdef LINUXOUTPUT
     freopen("/dev/tty", "w", stdout);

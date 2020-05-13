@@ -8,4 +8,4 @@ git diff --no-index ..\data\639096\vector+ans34567.txt ..\data\639096\search_fir
 .\test 697518
 git diff --no-index ..\data\697518\vector+ans34567.txt ..\data\697518\search_first.txt
 .\test 19630345
-REM git diff --no-index ..\data\19630345\vector+ans34567.txt ..\data\19630345\vector+ans_t.txt
+git diff --no-index ..\data\19630345\vector+ans34567.txt ..\data\19630345\vector+ans_t.txt
