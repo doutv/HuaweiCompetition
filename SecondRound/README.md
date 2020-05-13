@@ -18,6 +18,7 @@
 2. result incorrect [vector+ans34567](./version/vector+ans34567.cpp)
 3. 785 [vector+ans_t+拓扑排序+除法改乘法](./version/vector+ans_t.cpp)
 4. 296 [vector+ans34567](./version/vector+ans34567.cpp)
+5. 138 [search_first_c5336c6ba76b47f884c6f191344f0aca965abe4b](./version/search_first.cpp)
 ## data
 ### 10-15
 + node_size<=29W
