@@ -10,8 +10,8 @@
 using namespace std;
 
 // #define LINUXOUTPUT
-#define OUTPUT
-#define TEST
+// #define OUTPUT
+// #define TEST
 // #define GUESSDATA
 
 #ifdef GUESSDATA
@@ -19,7 +19,7 @@ using namespace std;
 #include <thread>
 #endif
 #ifdef TEST
-// 3 8 181
+// 213
 #include <chrono>
 auto time_start = chrono::steady_clock::now();
 string test_scale;
