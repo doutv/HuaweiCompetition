@@ -174,14 +174,15 @@ inline void read_data()
     }
 #ifdef GUESSDATA
     // this_thread::sleep_for(chrono::milliseconds(node_size));   //node_size=29W
-    int max_in_degree = 0,
-        max_out_degree = 0;
-    for (i = 1; i <= node_size; i++)
-    {
-        max_in_degree = max(in_degree[i], max_in_degree);
-        max_out_degree = max(out_degree[i], max_out_degree);
-    }
-    this_thread::sleep_for(chrono::milliseconds(max_in_degree * 100));
+    // 出入度很大，菊花图
+    // int max_in_degree = 0,
+    //     max_out_degree = 0;
+    // for (int i = 1; i <= node_size; i++)
+    // {
+    //     max_in_degree = max(in_degree[i], max_in_degree);
+    //     max_out_degree = max(out_degree[i], max_out_degree);
+    // }
+    // this_thread::sleep_for(chrono::milliseconds(max_in_degree * 1000));
 #endif
     // Topological sorting
     queue<int> q;
