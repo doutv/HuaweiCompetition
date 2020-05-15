@@ -24,6 +24,7 @@
 6. 157 [search_first bag+char[]ans ed203e72206b3d3f6a8cb0560c63edbb7f69170c ](./version/search_first.cpp)
 7. 138 [search_first_c5336c6ba76b47f884c6f191344f0aca965abe4b](./version/search_first.cpp)
 8. 206 [baseline 3670070ac4cf4db14ec8bf3aca1057d4cd8a06b6](./SecondRound/baseline.cpp)
+9. 152 [multithread+bag2+vector34567 433ec0375c797c394c1a389099070c0b47f0ad6c](./version/multithread+bag2+vector34567.cpp)
 ## data
 ### 10-15
 + node_size<=29W
