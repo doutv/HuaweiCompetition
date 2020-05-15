@@ -12,7 +12,7 @@ using namespace std;
 // #define LINUXOUTPUT
 // #define OUTPUT
 // #define TEST
-// #define GUESSDATA
+#define GUESSDATA
 
 #ifdef GUESSDATA
 #include <chrono>
@@ -171,14 +171,6 @@ inline void read_data()
     }
 #ifdef GUESSDATA
     // this_thread::sleep_for(chrono::milliseconds(node_size));   //node_size=29W
-    int max_in_degree = 0,
-        max_out_degree = 0;
-    for (i = 1; i <= node_size; i++)
-    {
-        max_in_degree = max(in_degree[i], max_in_degree);
-        max_out_degree = max(out_degree[i], max_out_degree);
-    }
-    this_thread::sleep_for(chrono::milliseconds(max_in_degree * 100));
 #endif
     // Topological sorting
     queue<int> q;
@@ -383,6 +375,10 @@ inline void output_data()
         }
     }
     fwrite(IO::pbuf, 1, IO::pp - IO::pbuf, stdout);
+#ifdef GUESSDATA
+
+    this_thread::sleep_for(chrono::milliseconds(ans_size / 100));
+#endif
 #ifdef TEST
 #ifdef LINUXOUTPUT
     freopen("/dev/tty", "w", stdout);
