@@ -9,9 +9,9 @@
 #include <queue>
 using namespace std;
 
-// #define LINUXOUTPUT
-// #define OUTPUT
-// #define TEST
+#define LINUXOUTPUT
+#define OUTPUT
+#define TEST
 
 #ifdef TEST
 // 213
