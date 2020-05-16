@@ -26,7 +26,7 @@ string output_path = "/projects/student/result.txt";
 #endif
 
 typedef long long ll;
-typedef pair<int, int> edge_t;
+typedef pair<int, float> edge_t;
 
 const int MAX_EDGE = 2000005;
 vector<edge_t> GUV[MAX_EDGE];

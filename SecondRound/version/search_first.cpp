@@ -14,7 +14,7 @@ using namespace std;
 #define TEST
 
 #ifdef TEST
-// 213
+// 33 73
 #include <chrono>
 auto time_start = chrono::steady_clock::now();
 string test_scale;
@@ -41,7 +41,7 @@ int path[9];
 double money[9];
 unordered_map<int, int> node_hashmap;
 unordered_map<int, vector<edge_t>> bag2;
-bool bag3[MAX_EDGE];
+bool bag4[MAX_EDGE];
 
 #ifdef TEST
 // data 19630345 环数
@@ -260,34 +260,36 @@ int get_GUV_lower_bound(int u)
         return GUV[u].size();
     return l;
 }
-void flag_reverse_dfs(int u)
+void flag_reverse_dfs(int u, int depth, double prec)
 {
     // v3<--v2<--v1<--u
     for (int i = get_GVU_lower_bound(u); i < GVU[u].size(); i++)
     {
         // 反向第一层
-        int v1 = node_hashmap[GVU[u][i].first];
-        if (!in_degree[v1] || !out_degree[v1])
+        int v = node_hashmap[GVU[u][i].first];
+        if (!in_degree[v] || !out_degree[v])
             continue;
-        v1_to_u[v1] = GVU[u][i].second;
-        for (int j = get_GVU_lower_bound(v1); j < GVU[v1].size(); j++)
+        if (depth >= 2)
         {
-            // 反向第二层
-            // bag2[v2]存的是所有能到达u的v1
-            int v2 = node_hashmap[GVU[v1][j].first];
-            if (!in_degree[v2] || !out_degree[v2])
+            double frac = prec / GVU[u][i].second;
+            if (frac < 0.2 || frac > 3)
                 continue;
-            if (bag2.find(v2) == bag2.end())
-                bag2[v2] = vector<edge_t>{make_pair(node[v1], GVU[v1][j].second)};
-            else
-                bag2[v2].push_back(make_pair(node[v1], GVU[v1][j].second));
-            // 标记能到达u的第三层节点v3
-            for (int k = get_GVU_lower_bound(v2); k < GVU[v2].size(); k++)
-            {
-                int v3 = node_hashmap[GVU[v2][k].first];
-                bag3[v3] = 1;
-            }
         }
+        if (depth == 1)
+            v1_to_u[v] = GVU[u][i].second;
+        if (depth == 2)
+        {
+            if (bag2.find(v) == bag2.end())
+                bag2[v] = vector<edge_t>{make_pair(node[u], GVU[u][i].second)};
+            else
+                bag2[v].push_back(make_pair(node[u], GVU[u][i].second));
+        }
+        if (depth == 4)
+        {
+            bag4[v] = 1;
+        }
+        if (depth <= 3)
+            flag_reverse_dfs(v, depth + 1, GVU[u][i].second);
     }
 }
 void dfs(int u, int depth)
@@ -332,7 +334,7 @@ void dfs(int u, int depth)
                 }
             }
         }
-        if (!bag3[v] && depth >= 5)
+        if (!bag4[v] && depth >= 4)
             continue;
         if (!visited[v] && depth <= 5)
         {
@@ -352,9 +354,9 @@ inline void work()
         if (!in_degree[i] || !out_degree[i])
             continue;
         bag2.clear();
-        memset(bag3, 0, node_size + 5);
+        memset(bag4, 0, node_size + 5);
         target = node[i];
-        flag_reverse_dfs(i);
+        flag_reverse_dfs(i, 1);
         path[1] = target;
         dfs(i, 1);
     }
@@ -398,8 +400,8 @@ inline void output_data()
 #ifdef TEST
 int main(int argc, char **argv)
 {
-    // test_scale = argv[1];
-    test_scale = "final";
+    test_scale = argv[1];
+    // test_scale = "final";
     input_path = "../data/" + test_scale + "/test_data.txt";
     output_path = input_path.substr(0, input_path.rfind('/')) + "/search_first.txt";
     cout << "Now running on data " + test_scale << endl;
