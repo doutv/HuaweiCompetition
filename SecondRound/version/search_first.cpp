@@ -38,9 +38,10 @@ int node_size;
 int node[MAX_EDGE * 2];
 double v1_to_u[MAX_EDGE];
 int path[9];
-double money[9];
+double money;
 unordered_map<int, int> node_hashmap;
 unordered_map<int, vector<edge_t>> bag2;
+bool bag3[MAX_EDGE];
 bool bag4[MAX_EDGE];
 
 #ifdef TEST
@@ -277,71 +278,80 @@ void flag_reverse_dfs(int u, int depth, double prec)
         }
         if (depth == 1)
             v1_to_u[v] = GVU[u][i].second;
-        if (depth == 2)
+        else if (depth == 2)
         {
             if (bag2.find(v) == bag2.end())
                 bag2[v] = vector<edge_t>{make_pair(node[u], GVU[u][i].second)};
             else
                 bag2[v].push_back(make_pair(node[u], GVU[u][i].second));
         }
-        if (depth == 4)
+        else if (depth == 3)
+        {
+            bag3[v] = 1;
+        }
+        else if (depth == 4)
         {
             bag4[v] = 1;
         }
-        if (depth <= 3)
+        if (depth <= 3 && !visited[v])
+        {
+            visited[v] = 1;
             flag_reverse_dfs(v, depth + 1, GVU[u][i].second);
+            visited[v] = 0;
+        }
     }
 }
-void dfs(int u, int depth)
+void dfs(int u, int depth, double prec)
 {
     for (int i = get_GUV_lower_bound(u); i < GUV[u].size(); i++)
     {
         int v = node_hashmap[GUV[u][i].first];
         if (!in_degree[v] || !out_degree[v])
             continue;
+        if (depth == 1)
+        {
+            money = GUV[u][i].second;
+        }
+        else if (depth >= 2)
+        {
+            double frac = GUV[u][i].second / prec;
+            if (frac < 0.2 || frac > 3)
+                continue;
+        }
         if (!visited[v] && bag2.find(v) != bag2.end())
         {
             path[depth + 1] = GUV[u][i].first;
-            money[depth] = GUV[u][i].second;
             for (int j = 0; j < bag2[v].size(); j++)
             {
                 if (visited[node_hashmap[bag2[v][j].first]])
                     continue;
                 int len = depth + 2;
                 path[depth + 2] = bag2[v][j].first;
-                money[depth + 1] = bag2[v][j].second;
-                money[depth + 2] = v1_to_u[node_hashmap[bag2[v][j].first]];
-                bool valid = 1;
+                double frac = money / v1_to_u[node_hashmap[bag2[v][j].first]];
+                if (frac < 0.2 || frac > 3)
+                {
+                    continue;
+                }
+                frac = bag2[v][j].second / GUV[u][i].second;
+                if (frac < 0.2 || frac > 3)
+                {
+                    continue;
+                }
+                int *now_ans = ans[len - 3];
+                ++*(now_ans);
                 for (int k = 1; k <= len; k++)
-                {
-                    double frac;
-                    if (k == len)
-                        frac = money[1] / money[k];
-                    else
-                        frac = money[k + 1] / money[k];
-                    if (frac < 0.2 || frac > 3)
-                    {
-                        valid = 0;
-                        break;
-                    }
-                }
-                if (valid)
-                {
-                    int *now_ans = ans[len - 3];
-                    ++*(now_ans);
-                    for (int k = 1; k <= len; k++)
-                        *(now_ans + len * (*now_ans) + k - 1) = path[k];
-                }
+                    *(now_ans + len * (*now_ans) + k - 1) = path[k];
             }
         }
         if (!bag4[v] && depth >= 4)
+            continue;
+        if (!bag3[v] && depth >= 5)
             continue;
         if (!visited[v] && depth <= 5)
         {
             visited[v] = 1;
             path[depth + 1] = GUV[u][i].first;
-            money[depth] = GUV[u][i].second;
-            dfs(v, depth + 1);
+            dfs(v, depth + 1, GUV[u][i].second);
             visited[v] = 0;
         }
     }
@@ -355,10 +365,13 @@ inline void work()
             continue;
         bag2.clear();
         memset(bag4, 0, node_size + 5);
+        memset(bag3, 0, node_size + 5);
         target = node[i];
-        flag_reverse_dfs(i, 1);
+        visited[i] = 1;
+        flag_reverse_dfs(i, 1, 0);
         path[1] = target;
-        dfs(i, 1);
+        dfs(i, 1, 0);
+        visited[i] = 0;
     }
 }
 
