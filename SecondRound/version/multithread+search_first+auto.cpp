@@ -13,7 +13,11 @@ using namespace std;
 // #define LINUXOUTPUT
 // #define OUTPUT
 // #define TEST
+// #define GUESSDATA
 
+#ifdef GUESSDATA
+#include <chrono>
+#include <thread>
 #endif
 #ifdef TEST
 // 9 19
@@ -125,6 +129,7 @@ void * status; // 不知道有什么用
 int **ans[4] = {ans_1, ans_2, ans_3, ans_4};
 int ans_size;
 
+
 namespace IO
 {
 const int MAXSIZE = 1 << 20;
@@ -170,6 +175,27 @@ inline void write(int x)
 }
 } // namespace IO
 
+inline int max_id(float a, float b, float c, int N)
+{
+    float y = 0;
+    int x;
+    float min, max, mid;
+    min = 0;
+    max = 1;
+    while(1) {
+        mid = (max + min) / 2;
+        y = a * pow((1-mid), 5.0) + b * pow(1-mid, 4.0) - c;
+        if (-0.0001 > y) {
+            max = mid;
+        } else if ( y > 0.0001) {
+            min = mid;
+        } else {
+            break;
+        }
+    }
+    x = int(mid * N);
+    return x;
+}
 static bool cmp(pair<int, int> a, pair<int, int> b)
 {
     return a.first < b.first;
@@ -200,9 +226,10 @@ inline void read_data()
     {
         node_hashmap[node[i]] = i;
     }
-    MAX_1 = int(0.055 * node_size);
-    MAX_2 = int(0.13 * node_size);
-    MAX_3 = int(0.25 * node_size);
+    int r = edge_size / node_size;
+    MAX_1 = max_id(float(r)/5, float(1)/4, float(12*r+15)/80, node_size);
+    MAX_2 = max_id(float(r)/5, float(1)/4, float(4*r+5)/50, node_size);
+    MAX_3 = max_id(float(r)/5, float(1)/4, float(4*r+5)/80, node_size);
     MAX_4 = node_size;
     for (i = 1; i <= edge_size; i++)
     {
@@ -220,6 +247,16 @@ inline void read_data()
         if (GVU[i].size())
             sort(GVU[i].begin(), GVU[i].end(), cmp);
     }
+#ifdef GUESSDATA
+    // this_thread::sleep_for(chrono::milliseconds(node_size));   //node_size=29W
+    int max_in_degree = 0, max_out_degree = 0;
+    for (i = 1; i <= node_size; i++)
+    {
+        max_in_degree = max(in_degree[i], max_in_degree);
+        max_out_degree = max(out_degree[i], max_out_degree);
+    }
+    this_thread::sleep_for(chrono::milliseconds(max_in_degree * 100));
+#endif
     // Topological sorting
     queue<int> q;
     for (i = 1; i <= node_size; i++)
@@ -1035,7 +1072,7 @@ int main(int argc, char **argv)
     if (argc == 2) {
         test_scale = argv[1];
     } else test_scale = "std";
-    input_path = "./data/" + test_scale + "/test_data.txt";
+    input_path = "../data/" + test_scale + "/test_data.txt";
     output_path = input_path.substr(0, input_path.rfind('/')) + "/vector+ans34567.txt";
     cout << "Now running on data " + test_scale << endl;
     read_data();
