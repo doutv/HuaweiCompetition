@@ -14,7 +14,7 @@ using namespace std;
 #define TEST
 
 #ifdef TEST
-// 213
+// 33 73
 #include <chrono>
 auto time_start = chrono::steady_clock::now();
 string test_scale;
@@ -38,7 +38,7 @@ int node_size;
 int node[MAX_EDGE * 2];
 double v1_to_u[MAX_EDGE];
 int path[9];
-double money[9];
+double money;
 unordered_map<int, int> node_hashmap;
 unordered_map<int, vector<edge_t>> bag2;
 bool bag3[MAX_EDGE];
@@ -144,13 +144,8 @@ inline void read_data()
     int u, v;
     int ch;
     double c;
-    while (1)
+    while (scanf("%d,%d,%lf", &u, &v, &c) != EOF)
     {
-        u = IO::rd();
-        if (u == EOF)
-            break;
-        v = IO::rd();
-        c = IO::read_double();
         node[++node_size] = u;
         node[++node_size] = v;
         ++edge_size;
@@ -260,76 +255,80 @@ int get_GUV_lower_bound(int u)
         return GUV[u].size();
     return l;
 }
-void flag_reverse_dfs(int u)
+void flag_reverse_dfs(int u, int depth, double prec)
 {
     // v3<--v2<--v1<--u
     for (int i = get_GVU_lower_bound(u); i < GVU[u].size(); i++)
     {
         // 反向第一层
-        int v1 = node_hashmap[GVU[u][i].first];
-        if (!in_degree[v1] || !out_degree[v1])
+        int v = node_hashmap[GVU[u][i].first];
+        if (!in_degree[v] || !out_degree[v])
             continue;
-        v1_to_u[v1] = GVU[u][i].second;
-        for (int j = get_GVU_lower_bound(v1); j < GVU[v1].size(); j++)
+        if (depth >= 2)
         {
-            // 反向第二层
-            // bag2[v2]存的是所有能到达u的v1
-            int v2 = node_hashmap[GVU[v1][j].first];
-            if (!in_degree[v2] || !out_degree[v2])
+            double frac = prec / GVU[u][i].second;
+            if (frac < 0.2 || frac > 3)
                 continue;
-            if (bag2.find(v2) == bag2.end())
-                bag2[v2] = vector<edge_t>{make_pair(node[v1], GVU[v1][j].second)};
+        }
+        if (depth == 1)
+            v1_to_u[v] = GVU[u][i].second;
+        else if (depth == 2)
+        {
+            if (bag2.find(v) == bag2.end())
+                bag2[v] = vector<edge_t>{make_pair(node[u], GVU[u][i].second)};
             else
-                bag2[v2].push_back(make_pair(node[v1], GVU[v1][j].second));
-            // 标记能到达u的第三层节点v3
-            for (int k = get_GVU_lower_bound(v2); k < GVU[v2].size(); k++)
-            {
-                int v3 = node_hashmap[GVU[v2][k].first];
-                bag3[v3] = 1;
-            }
+                bag2[v].push_back(make_pair(node[u], GVU[u][i].second));
+        }
+        else if (depth == 3)
+        {
+            bag3[v] = 1;
+        }
+        if (depth <= 2)
+        {
+            flag_reverse_dfs(v, depth + 1, GVU[u][i].second);
         }
     }
 }
-void dfs(int u, int depth)
+void dfs(int u, int depth, double prec)
 {
     for (int i = get_GUV_lower_bound(u); i < GUV[u].size(); i++)
     {
         int v = node_hashmap[GUV[u][i].first];
         if (!in_degree[v] || !out_degree[v])
             continue;
+        if (depth == 1)
+        {
+            money = GUV[u][i].second;
+        }
+        else if (depth >= 2)
+        {
+            double frac = GUV[u][i].second / prec;
+            if (frac < 0.2 || frac > 3)
+                continue;
+        }
         if (!visited[v] && bag2.find(v) != bag2.end())
         {
             path[depth + 1] = GUV[u][i].first;
-            money[depth] = GUV[u][i].second;
             for (int j = 0; j < bag2[v].size(); j++)
             {
                 if (visited[node_hashmap[bag2[v][j].first]])
                     continue;
                 int len = depth + 2;
                 path[depth + 2] = bag2[v][j].first;
-                money[depth + 1] = bag2[v][j].second;
-                money[depth + 2] = v1_to_u[node_hashmap[bag2[v][j].first]];
-                bool valid = 1;
+                double frac = money / v1_to_u[node_hashmap[bag2[v][j].first]];
+                if (frac < 0.2 || frac > 3)
+                {
+                    continue;
+                }
+                frac = bag2[v][j].second / GUV[u][i].second;
+                if (frac < 0.2 || frac > 3)
+                {
+                    continue;
+                }
+                int *now_ans = ans[len - 3];
+                ++*(now_ans);
                 for (int k = 1; k <= len; k++)
-                {
-                    double frac;
-                    if (k == len)
-                        frac = money[1] / money[k];
-                    else
-                        frac = money[k + 1] / money[k];
-                    if (frac < 0.2 || frac > 3)
-                    {
-                        valid = 0;
-                        break;
-                    }
-                }
-                if (valid)
-                {
-                    int *now_ans = ans[len - 3];
-                    ++*(now_ans);
-                    for (int k = 1; k <= len; k++)
-                        *(now_ans + len * (*now_ans) + k - 1) = path[k];
-                }
+                    *(now_ans + len * (*now_ans) + k - 1) = path[k];
             }
         }
         if (!bag3[v] && depth >= 5)
@@ -338,8 +337,7 @@ void dfs(int u, int depth)
         {
             visited[v] = 1;
             path[depth + 1] = GUV[u][i].first;
-            money[depth] = GUV[u][i].second;
-            dfs(v, depth + 1);
+            dfs(v, depth + 1, GUV[u][i].second);
             visited[v] = 0;
         }
     }
@@ -354,9 +352,11 @@ inline void work()
         bag2.clear();
         memset(bag3, 0, node_size + 5);
         target = node[i];
-        flag_reverse_dfs(i);
+        visited[i] = 1;
+        flag_reverse_dfs(i, 1, 0);
         path[1] = target;
-        dfs(i, 1);
+        dfs(i, 1, 0);
+        visited[i] = 0;
     }
 }
 
@@ -398,8 +398,10 @@ inline void output_data()
 #ifdef TEST
 int main(int argc, char **argv)
 {
-    test_scale = argv[1];
-    // test_scale = "final";
+    if (argc >= 2)
+        test_scale = argv[1];
+    else
+        test_scale = "final";
     input_path = "../data/" + test_scale + "/test_data.txt";
     output_path = input_path.substr(0, input_path.rfind('/')) + "/search_first.txt";
     cout << "Now running on data " + test_scale << endl;
