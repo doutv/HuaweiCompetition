@@ -1,4 +1,4 @@
-g++ -O3 search_first.cpp -o test
+g++ -O3 multithread++search_first.cpp -o test
 .\test std
 git diff --no-index ..\data\std\vector+ans34567.txt ..\data\std\search_first.txt
 .\test 9153
