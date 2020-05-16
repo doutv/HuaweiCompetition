@@ -74,6 +74,8 @@ int u_arr[MAX_EDGE];
 int v_arr[MAX_EDGE];
 double c_arr[MAX_EDGE];
 
+int in_degree[MAX_EDGE * 2];
+int out_degree[MAX_EDGE * 2];
 namespace IO
 {
     const int MAXSIZE = 1 << 20;
@@ -141,14 +143,8 @@ inline void read_data()
     int u, v;
     int ch;
     double c;
-    while (1)
+    while (scanf("%d,%d,%lf", &u, &v, &c) != EOF)
     {
-        u = IO::rd();
-        if (u == EOF)
-            break;
-        v = IO::rd();
-        scanf("%lf", &c);
-        // cout << u << " " << v << " " << c << endl;
         node[++node_size] = u;
         node[++node_size] = v;
         ++edge_size;
@@ -166,6 +162,8 @@ inline void read_data()
     {
         u = node_hashmap[u_arr[i]];
         v = node_hashmap[v_arr[i]];
+        ++in_degree[v];
+        ++out_degree[u];
         GUV[u].push_back(make_pair(v_arr[i], c_arr[i]));
         GVU[v].push_back(make_pair(u_arr[i], c_arr[i]));
     }
@@ -176,6 +174,54 @@ inline void read_data()
         if (GVU[i].size())
             sort(GVU[i].begin(), GVU[i].end(), cmp);
     }
+    // Topological sorting
+    queue<int> q;
+    for (int i = 1; i <= node_size; i++)
+    {
+        if (!in_degree[i] && out_degree[i])
+            q.push(i);
+    }
+    while (!q.empty())
+    {
+        u = q.front();
+        q.pop();
+        for (int j = 0; j < GUV[u].size(); j++)
+        {
+            v = node_hashmap[GUV[u][j].first];
+            --in_degree[v];
+            if (!in_degree[v] && out_degree[v])
+                q.push(v);
+        }
+    }
+    for (int i = 1; i <= node_size; i++)
+    {
+        if (!out_degree[i] && in_degree[i])
+            q.push(i);
+    }
+    while (!q.empty())
+    {
+        u = q.front();
+        q.pop();
+        for (int j = 0; j < GVU[u].size(); j++)
+        {
+            v = node_hashmap[GVU[u][j].first];
+            --out_degree[v];
+            if (!out_degree[v] && in_degree[v])
+                q.push(v);
+        }
+    }
+#ifdef TEST
+    int cnt = 0;
+    for (int i = 1; i <= node_size; i++)
+    {
+        if (!in_degree[i] || !out_degree[i])
+            ++cnt;
+    }
+    printf("Topological sort cut %d points\n", cnt);
+    auto input_time_end = chrono::steady_clock::now();
+    auto input_time_diff = input_time_end - time_start;
+    cout << "prehandle cost: " << chrono::duration<double, milli>(input_time_diff).count() / 1000 << "s" << endl;
+#endif
 }
 int target;
 int get_GVU_lower_bound(int u)
@@ -215,12 +261,16 @@ void flag_reverse_dfs(int u)
     {
         // 反向第一层
         int v1 = node_hashmap[GVU[u][i].first];
+        if (!in_degree[v1] || !out_degree[v1])
+            continue;
         v1_to_u[v1] = GVU[u][i].second;
         for (int j = get_GVU_lower_bound(v1); j < GVU[v1].size(); j++)
         {
             // 反向第二层
             // bag2[v2]存的是所有能到达u的v1
             int v2 = node_hashmap[GVU[v1][j].first];
+            if (!in_degree[v2] || !out_degree[v2])
+                continue;
             if (bag2.find(v2) == bag2.end())
                 bag2[v2] = vector<edge_t>{make_pair(node[v1], GVU[v1][j].second)};
             else
@@ -239,6 +289,8 @@ void dfs(int u, int depth)
     for (int i = get_GUV_lower_bound(u); i < GUV[u].size(); i++)
     {
         int v = node_hashmap[GUV[u][i].first];
+        if (!in_degree[v] || !out_degree[v])
+            continue;
         if (!visited[v] && bag2.find(v) != bag2.end())
         {
             path[depth + 1] = GUV[u][i].first;
@@ -291,7 +343,8 @@ inline void work()
     int v;
     for (int i = 1; i <= node_size; i++)
     {
-        cout << i << endl;
+        if (!in_degree[i] || !out_degree[i])
+            continue;
         bag2.clear();
         memset(bag3, 0, node_size + 5);
         target = node[i];
@@ -339,8 +392,10 @@ inline void output_data()
 #ifdef TEST
 int main(int argc, char **argv)
 {
-    // test_scale = argv[1];
-    test_scale = "final";
+    if (argc >= 2)
+        test_scale = argv[1];
+    else
+        test_scale = "final";
     input_path = "../data/" + test_scale + "/test_data.txt";
     output_path = input_path.substr(0, input_path.rfind('/')) + "/search_first.txt";
     cout << "Now running on data " + test_scale << endl;

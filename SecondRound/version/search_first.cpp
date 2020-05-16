@@ -144,13 +144,8 @@ inline void read_data()
     int u, v;
     int ch;
     double c;
-    while (1)
+    while (scanf("%d,%d,%lf", &u, &v, &c) != EOF)
     {
-        u = IO::rd();
-        if (u == EOF)
-            break;
-        v = IO::rd();
-        c = IO::read_double();
         node[++node_size] = u;
         node[++node_size] = v;
         ++edge_size;
@@ -336,8 +331,6 @@ void dfs(int u, int depth, double prec)
                     *(now_ans + len * (*now_ans) + k - 1) = path[k];
             }
         }
-        if (!bag4[v] && depth >= 4)
-            continue;
         if (!bag3[v] && depth >= 5)
             continue;
         if (!visited[v] && depth <= 5)
@@ -357,7 +350,6 @@ inline void work()
         if (!in_degree[i] || !out_degree[i])
             continue;
         bag2.clear();
-        memset(bag4, 0, node_size + 5);
         memset(bag3, 0, node_size + 5);
         target = node[i];
         visited[i] = 1;
@@ -406,8 +398,10 @@ inline void output_data()
 #ifdef TEST
 int main(int argc, char **argv)
 {
-    test_scale = argv[1];
-    // test_scale = "final";
+    if (argc >= 2)
+        test_scale = argv[1];
+    else
+        test_scale = "final";
     input_path = "../data/" + test_scale + "/test_data.txt";
     output_path = input_path.substr(0, input_path.rfind('/')) + "/search_first.txt";
     cout << "Now running on data " + test_scale << endl;
