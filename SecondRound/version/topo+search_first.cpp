@@ -12,12 +12,7 @@ using namespace std;
 #define LINUXOUTPUT
 #define OUTPUT
 #define TEST
-// #define GUESSDATA
 
-#ifdef GUESSDATA
-#include <chrono>
-#include <thread>
-#endif
 #ifdef TEST
 // 213
 #include <chrono>
@@ -128,35 +123,48 @@ void topo_cut(queue<int> &q)
 {
     // 用于搜索后的剪枝
     int u, v, w;
-    while (!q.empty()) {
+    while (!q.empty())
+    {
         u = q.front();
         q.pop();
         // w-->u-->v
-        if (out_degree[u]) {
+        if (out_degree[u])
+        {
             out_degree[u] = 0;
-        } else {
+        }
+        else
+        {
             goto part2;
         }
-        for (int i = 0; i < GUV[u].size(); i++) {
+        for (int i = 0; i < GUV[u].size(); i++)
+        {
             v = node_hashmap[GUV[u][i].first];
-            if (in_degree[v]) {
+            if (in_degree[v])
+            {
                 in_degree[v]--;
-                if (!in_degree[v] && out_degree[v]) {
+                if (!in_degree[v] && out_degree[v])
+                {
                     q.push(v);
                 }
             }
         }
-        part2:
-        if (in_degree[u]) {
+    part2:
+        if (in_degree[u])
+        {
             in_degree[u] = 0;
-        } else {
+        }
+        else
+        {
             continue;
         }
-        for (int j = 0; j < GVU[u].size(); j++) {
+        for (int j = 0; j < GVU[u].size(); j++)
+        {
             w = node_hashmap[GVU[u][j].first];
-            if (out_degree[w]) {
+            if (out_degree[w])
+            {
                 out_degree[w]--;
-                if (!out_degree[w] && in_degree[w]) {
+                if (!out_degree[w] && in_degree[w])
+                {
                     q.push(w);
                 }
             }
@@ -208,9 +216,6 @@ inline void read_data()
         if (GVU[i].size())
             sort(GVU[i].begin(), GVU[i].end(), cmp);
     }
-#ifdef GUESSDATA
-    // this_thread::sleep_for(chrono::milliseconds(node_size));   //node_size=29W
-#endif
     // Topological sorting
     queue<int> q;
     for (int i = 1; i <= node_size; i++)
@@ -417,10 +422,6 @@ inline void output_data()
         }
     }
     fwrite(IO::pbuf, 1, IO::pp - IO::pbuf, stdout);
-#ifdef GUESSDATA
-
-    this_thread::sleep_for(chrono::milliseconds(ans_size / 100));
-#endif
 #ifdef TEST
 #ifdef LINUXOUTPUT
     freopen("/dev/tty", "w", stdout);
