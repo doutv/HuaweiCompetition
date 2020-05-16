@@ -51,7 +51,7 @@ const int ANS4_MAX = 10000005;
 const int ANS5_MAX = 10000005;
 const int ANS6_MAX = 10000005;
 const int ANS7_MAX = 20000005;
-const int ANS8_MAX = 10000005;
+const int ANS8_MAX = 20000005;
 #else
 const int ANS3_MAX = 20000005;
 const int ANS4_MAX = 20000005;
@@ -398,8 +398,8 @@ inline void output_data()
 #ifdef TEST
 int main(int argc, char **argv)
 {
-    // test_scale = argv[1];
-    test_scale = "final";
+    test_scale = argv[1];
+    // test_scale = "final";
     input_path = "../data/" + test_scale + "/test_data.txt";
     output_path = input_path.substr(0, input_path.rfind('/')) + "/search_first.txt";
     cout << "Now running on data " + test_scale << endl;
