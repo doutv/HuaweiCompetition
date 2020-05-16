@@ -10,8 +10,8 @@
 using namespace std;
 
 // #define LINUXOUTPUT
-// #define OUTPUT
-// #define TEST
+#define OUTPUT
+#define TEST
 
 #ifdef TEST
 // 213
@@ -26,7 +26,7 @@ string output_path = "/projects/student/result.txt";
 #endif
 
 typedef long long ll;
-typedef pair<int, int> edge_t;
+typedef pair<int, double> edge_t;
 
 const int MAX_EDGE = 2000005;
 vector<edge_t> GUV[MAX_EDGE];
@@ -36,9 +36,9 @@ int edge_size;
 bool visited[MAX_EDGE];
 int node_size;
 int node[MAX_EDGE * 2];
-int v1_to_u[MAX_EDGE];
-int path[8];
-int money[8];
+double v1_to_u[MAX_EDGE];
+int path[9];
+double money[9];
 unordered_map<int, int> node_hashmap;
 unordered_map<int, vector<edge_t>> bag2;
 bool bag3[MAX_EDGE];
@@ -51,12 +51,14 @@ const int ANS4_MAX = 10000005;
 const int ANS5_MAX = 10000005;
 const int ANS6_MAX = 10000005;
 const int ANS7_MAX = 20000005;
+const int ANS8_MAX = 10000005;
 #else
 const int ANS3_MAX = 20000005;
 const int ANS4_MAX = 20000005;
 const int ANS5_MAX = 20000005;
 const int ANS6_MAX = 20000005;
 const int ANS7_MAX = 20000005;
+const int ANS8_MAX = 20000005;
 #endif
 
 int ans_size;
@@ -65,11 +67,12 @@ int ans4[ANS4_MAX * 4];
 int ans5[ANS5_MAX * 5];
 int ans6[ANS6_MAX * 6];
 int ans7[ANS7_MAX * 7];
-int *ans[5] = {ans3, ans4, ans5, ans6, ans7};
+int ans8[ANS8_MAX * 8];
+int *ans[6] = {ans3, ans4, ans5, ans6, ans7, ans8};
 
 int u_arr[MAX_EDGE];
 int v_arr[MAX_EDGE];
-int c_arr[MAX_EDGE];
+double c_arr[MAX_EDGE];
 
 int in_degree[MAX_EDGE * 2];
 int out_degree[MAX_EDGE * 2];
@@ -99,6 +102,18 @@ namespace IO
         while (c != '\n')
             c = gc();
     }
+    inline double read_double()
+    {
+        double tmp = 1;
+        double x = 0;
+        char ch = gc();
+        for (; isdigit(ch); ch = gc())
+            x = x * 10 + (ch - '0');
+        if (ch == '.')
+            for (ch = gc(); isdigit(ch); ch = gc())
+                tmp /= 10.0, x += tmp * (ch - '0');
+        return x;
+    }
     char pbuf[MAXSIZE], *pp = pbuf;
     inline void push(const char &c)
     {
@@ -126,15 +141,16 @@ static bool cmp(edge_t a, edge_t b)
 inline void read_data()
 {
     freopen(input_path.c_str(), "r", stdin);
-    int u, v, c;
+    int u, v;
     int ch;
+    double c;
     while (1)
     {
         u = IO::rd();
         if (u == EOF)
             break;
         v = IO::rd();
-        c = IO::rd();
+        c = IO::read_double();
         node[++node_size] = u;
         node[++node_size] = v;
         ++edge_size;
@@ -298,9 +314,9 @@ void dfs(int u, int depth)
                 {
                     double frac;
                     if (k == len)
-                        frac = (double)money[1] / (double)money[k];
+                        frac = money[1] / money[k];
                     else
-                        frac = (double)money[k + 1] / (double)money[k];
+                        frac = money[k + 1] / money[k];
                     if (frac < 0.2 || frac > 3)
                     {
                         valid = 0;
@@ -316,9 +332,9 @@ void dfs(int u, int depth)
                 }
             }
         }
-        if (!bag3[v] && depth >= 4)
+        if (!bag3[v] && depth >= 5)
             continue;
-        if (!visited[v] && depth <= 4)
+        if (!visited[v] && depth <= 5)
         {
             visited[v] = 1;
             path[depth + 1] = GUV[u][i].first;
@@ -351,9 +367,9 @@ inline void output_data()
 #ifdef TEST
     auto output_time_start = chrono::steady_clock::now();
 #endif
-    ans_size = *(ans3) + *(ans4) + *(ans5) + *(ans6) + *(ans7);
+    ans_size = *(ans3) + *(ans4) + *(ans5) + *(ans6) + *(ans7) + *(ans8);
     printf("%d\n", ans_size);
-    for (i = 0; i <= 4; i++)
+    for (i = 0; i <= 5; i++)
     {
         for (j = 1; j <= *ans[i]; j++)
         {
@@ -382,8 +398,8 @@ inline void output_data()
 #ifdef TEST
 int main(int argc, char **argv)
 {
-    test_scale = argv[1];
-    // test_scale = "std";
+    // test_scale = argv[1];
+    test_scale = "final";
     input_path = "../data/" + test_scale + "/test_data.txt";
     output_path = input_path.substr(0, input_path.rfind('/')) + "/search_first.txt";
     cout << "Now running on data " + test_scale << endl;

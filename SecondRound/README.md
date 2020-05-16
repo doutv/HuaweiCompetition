@@ -43,6 +43,9 @@
 + 每天3次，AB榜。最后一天下午更换数据集，且对题目进行调整（喵喵喵？？？），可提交5次
 + 禁止直接根据ID和权重的取值排除部分数据，禁止跳过文件中的部分数据
 
+## Final data
++ 路径长度[3,8]
++ 转账金额为浮点数
 ## resources
 + https://zhuanlan.zhihu.com/p/125764650
 + https://blog.csdn.net/qq_34914551/article/details/105788200
