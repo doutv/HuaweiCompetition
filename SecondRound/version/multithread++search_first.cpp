@@ -11,14 +11,9 @@
 using namespace std;
 
 // #define LINUXOUTPUT
-// #define OUTPUT
-// #define TEST
-// #define GUESSDATA
+#define OUTPUT
+#define TEST
 
-#ifdef GUESSDATA
-#include <chrono>
-#include <thread>
-#endif
 #ifdef TEST
 // 213
 #include <chrono>
@@ -131,7 +126,7 @@ int MAX_4; // 线程3搜索的最大节点的离散化id
 // 线程变量
 pthread_t threads[4];
 pthread_attr_t attr;
-void * status;
+void *status;
 int **ans[4] = {ans_1, ans_2, ans_3, ans_4};
 int ans_size;
 
@@ -230,9 +225,6 @@ inline void read_data()
         if (GVU[i].size())
             sort(GVU[i].begin(), GVU[i].end(), cmp);
     }
-#ifdef GUESSDATA
-    // this_thread::sleep_for(chrono::milliseconds(node_size));   //node_size=29W
-#endif
     // Topological sorting
     queue<int> q;
     for (int i = 1; i <= node_size; i++)
@@ -398,7 +390,7 @@ void dfs_1(int u, int depth)
         }
     }
 }
-inline void * work_1(void *)
+inline void *work_1(void *)
 {
     int v;
 #ifdef TEST
@@ -419,7 +411,7 @@ inline void * work_1(void *)
 #ifdef TEST
     auto time_end = chrono::steady_clock::now();
     auto diff = time_end - time_start;
-    cout << "线程1时间: " << chrono::duration<double, milli>(diff).count() / 1000  << "s" << endl;
+    cout << "线程1时间: " << chrono::duration<double, milli>(diff).count() / 1000 << "s" << endl;
 #endif
     pthread_exit(NULL);
 }
@@ -538,7 +530,7 @@ void dfs_2(int u, int depth)
         }
     }
 }
-inline void * work_2(void *)
+inline void *work_2(void *)
 {
     int v;
 #ifdef TEST
@@ -559,7 +551,7 @@ inline void * work_2(void *)
 #ifdef TEST
     auto time_end = chrono::steady_clock::now();
     auto diff = time_end - time_start;
-    cout << "线程2时间: " << chrono::duration<double, milli>(diff).count() / 1000  << "s" << endl;
+    cout << "线程2时间: " << chrono::duration<double, milli>(diff).count() / 1000 << "s" << endl;
 #endif
     pthread_exit(NULL);
 }
@@ -678,7 +670,7 @@ void dfs_3(int u, int depth)
         }
     }
 }
-inline void * work_3(void *)
+inline void *work_3(void *)
 {
     int v;
 #ifdef TEST
@@ -699,7 +691,7 @@ inline void * work_3(void *)
 #ifdef TEST
     auto time_end = chrono::steady_clock::now();
     auto diff = time_end - time_start;
-    cout << "线程3时间: " << chrono::duration<double, milli>(diff).count() / 1000  << "s" << endl;
+    cout << "线程3时间: " << chrono::duration<double, milli>(diff).count() / 1000 << "s" << endl;
 #endif
     pthread_exit(NULL);
 }
@@ -818,7 +810,7 @@ void dfs_4(int u, int depth)
         }
     }
 }
-inline void * work_4(void *)
+inline void *work_4(void *)
 {
     int v;
 #ifdef TEST
@@ -839,11 +831,10 @@ inline void * work_4(void *)
 #ifdef TEST
     auto time_end = chrono::steady_clock::now();
     auto diff = time_end - time_start;
-    cout << "线程4时间: " << chrono::duration<double, milli>(diff).count() / 1000  << "s" << endl;
+    cout << "线程4时间: " << chrono::duration<double, milli>(diff).count() / 1000 << "s" << endl;
 #endif
     pthread_exit(NULL);
 }
-
 
 inline void output_data()
 {
@@ -858,16 +849,22 @@ inline void output_data()
     // int ans3_4[ANS3_MAX * 3];
     // ans3_4第一位储存线程四搜到的三元环个数
     ans_size = 0;
-    for (i = 0; i < 4; i++) {
-        for (j = 0; j < 5; j++) {
+    for (i = 0; i < 4; i++)
+    {
+        for (j = 0; j < 5; j++)
+        {
             ans_size += *(ans[i][j]);
         }
     }
     printf("%d\n", ans_size);
-    for (i = 0; i < 5; i++) { // 节点数相同的环
-        for (j = 0; j < 4; j++) { // 不同线程的环
-            for (k = 1; k <= *(ans[j][i]); k++) {
-                for (m = 0; m < i + 2; m++) {
+    for (i = 0; i < 5; i++)
+    { // 节点数相同的环
+        for (j = 0; j < 4; j++)
+        { // 不同线程的环
+            for (k = 1; k <= *(ans[j][i]); k++)
+            {
+                for (m = 0; m < i + 2; m++)
+                {
                     IO::write(*(ans[j][i] + k * (i + 3) + m));
                     IO::push(',');
                 }
@@ -877,10 +874,6 @@ inline void output_data()
         }
     }
     fwrite(IO::pbuf, 1, IO::pp - IO::pbuf, stdout);
-#ifdef GUESSDATA
-
-    this_thread::sleep_for(chrono::milliseconds(ans_size / 100));
-#endif
 #ifdef TEST
 #ifdef LINUXOUTPUT
     freopen("/dev/tty", "w", stdout);
@@ -896,9 +889,12 @@ inline void output_data()
 #ifdef TEST
 int main(int argc, char **argv)
 {
-    if (argc == 2) {
+    if (argc == 2)
+    {
         test_scale = argv[1];
-    } else {
+    }
+    else
+    {
         test_scale = "std";
     }
     input_path = "./data/" + test_scale + "/test_data.txt";
