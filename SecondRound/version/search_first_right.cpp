@@ -9,21 +9,8 @@
 #include <queue>
 using namespace std;
 
-// #define LINUXOUTPUT
-#define OUTPUT
-#define TEST
-
-#ifdef TEST
-// 213
-#include <chrono>
-auto time_start = chrono::steady_clock::now();
-string test_scale;
-string input_path;
-string output_path;
-#else
 string input_path = "/data/test_data.txt";
 string output_path = "/projects/student/result.txt";
-#endif
 
 typedef long long ll;
 typedef pair<int, double> edge_t;
@@ -43,24 +30,12 @@ unordered_map<int, int> node_hashmap;
 unordered_map<int, vector<edge_t>> bag2;
 bool bag3[MAX_EDGE];
 
-#ifdef TEST
-// data 19630345 环数
-// 1919   16032   151763   1577627  17883004
-const int ANS3_MAX = 10000005;
-const int ANS4_MAX = 10000005;
-const int ANS5_MAX = 10000005;
-const int ANS6_MAX = 10000005;
-const int ANS7_MAX = 20000005;
-const int ANS8_MAX = 10000005;
-#else
 const int ANS3_MAX = 20000005;
 const int ANS4_MAX = 20000005;
 const int ANS5_MAX = 20000005;
 const int ANS6_MAX = 20000005;
 const int ANS7_MAX = 20000005;
 const int ANS8_MAX = 20000005;
-#endif
-
 int ans_size;
 int ans3[ANS3_MAX * 3];
 int ans4[ANS4_MAX * 4];
@@ -76,62 +51,6 @@ double c_arr[MAX_EDGE];
 
 int in_degree[MAX_EDGE * 2];
 int out_degree[MAX_EDGE * 2];
-namespace IO
-{
-    const int MAXSIZE = 1 << 20;
-    char buf[MAXSIZE], *p1, *p2;
-#define gc() (p1 == p2 && (p2 = (p1 = buf) + fread(buf, 1, MAXSIZE, stdin), p1 == p2) ? EOF : *p1++)
-    inline int rd()
-    {
-        int x = 0;
-        int16_t c = gc();
-        while (!isdigit(c))
-        {
-            if (c == EOF)
-                return c;
-            c = gc();
-        }
-        while (isdigit(c))
-            x = x * 10 + (c ^ 48), c = gc();
-        return x;
-    }
-    inline void rd_to_line_end()
-    {
-        int16_t c = gc();
-        while (c != '\n')
-            c = gc();
-    }
-    inline double read_double()
-    {
-        double tmp = 1;
-        double x = 0;
-        char ch = gc();
-        for (; isdigit(ch); ch = gc())
-            x = x * 10 + (ch - '0');
-        if (ch == '.')
-            for (ch = gc(); isdigit(ch); ch = gc())
-                tmp /= 10.0, x += tmp * (ch - '0');
-        return x;
-    }
-    char pbuf[MAXSIZE], *pp = pbuf;
-    inline void push(const char &c)
-    {
-        if (pp - pbuf == MAXSIZE)
-            fwrite(pbuf, 1, MAXSIZE, stdout), pp = pbuf;
-        *pp++ = c;
-    }
-    inline void write(int x)
-    {
-        static int sta[35];
-        int top = 0;
-        do
-        {
-            sta[top++] = x % 10, x /= 10;
-        } while (x);
-        while (top)
-            push(sta[--top] + '0');
-    }
-} // namespace IO
 
 static bool cmp(edge_t a, edge_t b)
 {
@@ -174,7 +93,6 @@ inline void read_data()
         if (GVU[i].size())
             sort(GVU[i].begin(), GVU[i].end(), cmp);
     }
-    // Topological sorting
     queue<int> q;
     for (int i = 1; i <= node_size; i++)
     {
@@ -210,18 +128,6 @@ inline void read_data()
                 q.push(v);
         }
     }
-#ifdef TEST
-    int cnt = 0;
-    for (int i = 1; i <= node_size; i++)
-    {
-        if (!in_degree[i] || !out_degree[i])
-            ++cnt;
-    }
-    printf("Topological sort cut %d points\n", cnt);
-    auto input_time_end = chrono::steady_clock::now();
-    auto input_time_diff = input_time_end - time_start;
-    cout << "prehandle cost: " << chrono::duration<double, milli>(input_time_diff).count() / 1000 << "s" << endl;
-#endif
 }
 int target;
 int get_GVU_lower_bound(int u)
@@ -256,18 +162,14 @@ int get_GUV_lower_bound(int u)
 }
 void flag_reverse_dfs(int u)
 {
-    // v3<--v2<--v1<--u
     for (int i = get_GVU_lower_bound(u); i < GVU[u].size(); i++)
     {
-        // 反向第一层
         int v1 = node_hashmap[GVU[u][i].first];
         if (!in_degree[v1] || !out_degree[v1])
             continue;
         v1_to_u[v1] = GVU[u][i].second;
         for (int j = get_GVU_lower_bound(v1); j < GVU[v1].size(); j++)
         {
-            // 反向第二层
-            // bag2[v2]存的是所有能到达u的v1
             int v2 = node_hashmap[GVU[v1][j].first];
             if (!in_degree[v2] || !out_degree[v2])
                 continue;
@@ -275,7 +177,6 @@ void flag_reverse_dfs(int u)
                 bag2[v2] = vector<edge_t>{make_pair(node[v1], GVU[v1][j].second)};
             else
                 bag2[v2].push_back(make_pair(node[v1], GVU[v1][j].second));
-            // 标记能到达u的第三层节点v3
             for (int k = get_GVU_lower_bound(v2); k < GVU[v2].size(); k++)
             {
                 int v3 = node_hashmap[GVU[v2][k].first];
@@ -358,9 +259,6 @@ inline void output_data()
 {
     int i, j, k;
     freopen(output_path.c_str(), "w", stdout);
-#ifdef TEST
-    auto output_time_start = chrono::steady_clock::now();
-#endif
     ans_size = *(ans3) + *(ans4) + *(ans5) + *(ans6) + *(ans7) + *(ans8);
     printf("%d\n", ans_size);
     for (i = 0; i <= 5; i++)
@@ -369,53 +267,12 @@ inline void output_data()
         {
             for (k = 0; k < i + 2; k++)
             {
-                IO::write(*(ans[i] + j * (i + 3) + k));
-                IO::push(',');
+                cout << *(ans[i] + j * (i + 3) + k) << ",";
             }
-            IO::write(*(ans[i] + j * (i + 3) + i + 2));
-            IO::push('\n');
+            cout << *(ans[i] + j * (i + 3) + i + 2) << endl;
         }
     }
-    fwrite(IO::pbuf, 1, IO::pp - IO::pbuf, stdout);
-#ifdef TEST
-#ifdef LINUXOUTPUT
-    freopen("/dev/tty", "w", stdout);
-#else
-    freopen("CON", "w", stdout);
-#endif
-    auto output_time_end = chrono::steady_clock::now();
-    auto output_time_diff = output_time_end - output_time_start;
-    cout << "output cost: " << chrono::duration<double, milli>(output_time_diff).count() / 1000 << "s" << endl;
-#endif
-    return;
 }
-#ifdef TEST
-int main(int argc, char **argv)
-{
-    if (argc >= 2)
-        test_scale = argv[1];
-    else
-        test_scale = "final";
-    input_path = "../data/" + test_scale + "/test_data.txt";
-    output_path = input_path.substr(0, input_path.rfind('/')) + "/search_first.txt";
-    cout << "Now running on data " + test_scale << endl;
-    read_data();
-    work();
-    output_data();
-    auto time_end = chrono::steady_clock::now();
-    auto diff = time_end - time_start;
-#ifdef LINUXOUTPUT
-    freopen("/dev/tty", "w", stdout);
-#else
-    freopen("CON", "w", stdout);
-#endif
-    printf("ans size is %d\n", ans_size);
-    cout << "The program's speed: " << chrono::duration<double, milli>(diff).count() / 1000 << "s" << endl;
-    fclose(stdin);
-    fclose(stdout);
-    return 0;
-}
-#else
 int main()
 {
     read_data();
@@ -425,4 +282,3 @@ int main()
     fclose(stdout);
     return 0;
 }
-#endif
