@@ -10,16 +10,16 @@
 using namespace std;
 
 // #define LINUXOUTPUT
-#define OUTPUT
-#define TEST
-// #define GUESSDATA
+// #define OUTPUT
+// #define TEST
+#define GUESSDATA
 
 #ifdef GUESSDATA
 #include <chrono>
 #include <thread>
 #endif
 #ifdef TEST
-// 3 8 181
+// 213
 #include <chrono>
 auto time_start = chrono::steady_clock::now();
 string test_scale;
@@ -51,11 +51,11 @@ bool bag3[MAX_EDGE];
 #ifdef TEST
 // data 19630345 环数
 // 1919   16032   151763   1577627  17883004
-const int ANS3_MAX = 1919;
-const int ANS4_MAX = 16032;
-const int ANS5_MAX = 151763;
-const int ANS6_MAX = 1577627;
-const int ANS7_MAX = 17883004;
+const int ANS3_MAX = 10000005;
+const int ANS4_MAX = 10000005;
+const int ANS5_MAX = 10000005;
+const int ANS6_MAX = 10000005;
+const int ANS7_MAX = 20000005;
 #else
 const int ANS3_MAX = 20000005;
 const int ANS4_MAX = 20000005;
@@ -64,13 +64,13 @@ const int ANS6_MAX = 20000005;
 const int ANS7_MAX = 20000005;
 #endif
 
-char ans3[ANS3_MAX * 3 * 10];
-char ans4[ANS4_MAX * 4 * 10];
-char ans5[ANS5_MAX * 5 * 10];
-char ans6[ANS6_MAX * 6 * 10];
-char ans7[ANS7_MAX * 7 * 10];
-int ans_size[5];
-char *ans_tail[5] = {ans3, ans4, ans5, ans6, ans7};
+int ans_size;
+int ans3[ANS3_MAX * 3];
+int ans4[ANS4_MAX * 4];
+int ans5[ANS5_MAX * 5];
+int ans6[ANS6_MAX * 6];
+int ans7[ANS7_MAX * 7];
+int *ans[5] = {ans3, ans4, ans5, ans6, ans7};
 
 int u_arr[MAX_EDGE];
 int v_arr[MAX_EDGE];
@@ -171,14 +171,6 @@ inline void read_data()
     }
 #ifdef GUESSDATA
     // this_thread::sleep_for(chrono::milliseconds(node_size));   //node_size=29W
-    int max_in_degree = 0,
-        max_out_degree = 0;
-    for (i = 1; i <= node_size; i++)
-    {
-        max_in_degree = max(in_degree[i], max_in_degree);
-        max_out_degree = max(out_degree[i], max_out_degree);
-    }
-    this_thread::sleep_for(chrono::milliseconds(max_in_degree * 100));
 #endif
     // Topological sorting
     queue<int> q;
@@ -230,22 +222,48 @@ inline void read_data()
 #endif
 }
 int target;
+int get_GVU_lower_bound(int u)
+{
+    int l = 0, r = GVU[u].size() - 1;
+    while (l < r)
+    {
+        int mid = (l + r) / 2;
+        if (GVU[u][mid].first > target)
+            r = mid;
+        else
+            l = mid + 1;
+    }
+    if (GVU[u][l].first <= target)
+        return GVU[u].size();
+    return l;
+}
+int get_GUV_lower_bound(int u)
+{
+    int l = 0, r = GUV[u].size() - 1;
+    while (l < r)
+    {
+        int mid = (l + r) / 2;
+        if (GUV[u][mid].first > target)
+            r = mid;
+        else
+            l = mid + 1;
+    }
+    if (GUV[u][l].first <= target)
+        return GUV[u].size();
+    return l;
+}
 void flag_reverse_dfs(int u)
 {
     // v3<--v2<--v1<--u
-    for (int i = 0; i < GVU[u].size(); i++)
+    for (int i = get_GVU_lower_bound(u); i < GVU[u].size(); i++)
     {
-        if (GVU[u][i].first <= target)
-            continue;
         // 反向第一层
         int v1 = node_hashmap[GVU[u][i].first];
         if (!in_degree[v1] || !out_degree[v1])
             continue;
         v1_to_u[v1] = GVU[u][i].second;
-        for (int j = 0; j < GVU[v1].size(); j++)
+        for (int j = get_GVU_lower_bound(v1); j < GVU[v1].size(); j++)
         {
-            if (GVU[v1][j].first <= target)
-                continue;
             // 反向第二层
             // bag2[v2]存的是所有能到达u的v1
             int v2 = node_hashmap[GVU[v1][j].first];
@@ -256,22 +274,18 @@ void flag_reverse_dfs(int u)
             else
                 bag2[v2].push_back(make_pair(node[v1], GVU[v1][j].second));
             // 标记能到达u的第三层节点v3
-            for (int k = 0; k < GVU[v2].size(); k++)
+            for (int k = get_GVU_lower_bound(v2); k < GVU[v2].size(); k++)
             {
                 int v3 = node_hashmap[GVU[v2][k].first];
-                if (GVU[v1][j].first > target)
-                    bag3[v3] = 1;
+                bag3[v3] = 1;
             }
         }
     }
 }
-static int sta[11];
 void dfs(int u, int depth)
 {
-    for (int i = 0; i < GUV[u].size(); i++)
+    for (int i = get_GUV_lower_bound(u); i < GUV[u].size(); i++)
     {
-        if (GUV[u][i].first <= target)
-            continue;
         int v = node_hashmap[GUV[u][i].first];
         if (!in_degree[v] || !out_degree[v])
             continue;
@@ -303,24 +317,10 @@ void dfs(int u, int depth)
                 }
                 if (valid)
                 {
-                    char *now_ans = ans_tail[len - 3];
-                    ++ans_size[len - 3];
+                    int *now_ans = ans[len - 3];
+                    ++*(now_ans);
                     for (int k = 1; k <= len; k++)
-                    {
-                        int top = 0;
-                        do
-                        {
-                            sta[top++] = path[k] % 10;
-                            path[k] /= 10;
-                        } while (path[k]);
-                        while (top)
-                            *(now_ans++) = sta[--top] + '0';
-                        if (k < len)
-                            *(now_ans++) = ',';
-                        else
-                            *(now_ans++) = '\n';
-                    }
-                    ans_tail[len - 3] = now_ans;
+                        *(now_ans + len * (*now_ans) + k - 1) = path[k];
                 }
             }
         }
@@ -348,29 +348,37 @@ inline void work()
         target = node[i];
         flag_reverse_dfs(i);
         path[1] = target;
-        visited[i] = 1;
         dfs(i, 1);
-        visited[i] = 0;
     }
 }
 
 inline void output_data()
 {
+    int i, j, k;
     freopen(output_path.c_str(), "w", stdout);
 #ifdef TEST
     auto output_time_start = chrono::steady_clock::now();
 #endif
-    printf("%d\n", ans_size[0] + ans_size[1] + ans_size[2] + ans_size[3] + ans_size[4]);
-    char *ans_head[5] = {ans3, ans4, ans5, ans6, ans7};
-    for (int i = 0; i <= 4; i++)
+    ans_size = *(ans3) + *(ans4) + *(ans5) + *(ans6) + *(ans7);
+    printf("%d\n", ans_size);
+    for (i = 0; i <= 4; i++)
     {
-        char *now = ans_head[i];
-        while (now != ans_tail[i])
+        for (j = 1; j <= *ans[i]; j++)
         {
-            IO::push(*(++now));
+            for (k = 0; k < i + 2; k++)
+            {
+                IO::write(*(ans[i] + j * (i + 3) + k));
+                IO::push(',');
+            }
+            IO::write(*(ans[i] + j * (i + 3) + i + 2));
+            IO::push('\n');
         }
     }
     fwrite(IO::pbuf, 1, IO::pp - IO::pbuf, stdout);
+#ifdef GUESSDATA
+
+    this_thread::sleep_for(chrono::milliseconds(ans_size / 100));
+#endif
 #ifdef TEST
 #ifdef LINUXOUTPUT
     freopen("/dev/tty", "w", stdout);
@@ -401,7 +409,7 @@ int main(int argc, char **argv)
 #else
     freopen("CON", "w", stdout);
 #endif
-    printf("ans size is %d\n", ans_size[0] + ans_size[1] + ans_size[2] + ans_size[3] + ans_size[4]);
+    printf("ans size is %d\n", ans_size);
     cout << "The program's speed: " << chrono::duration<double, milli>(diff).count() / 1000 << "s" << endl;
     fclose(stdin);
     fclose(stdout);

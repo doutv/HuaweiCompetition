@@ -129,6 +129,7 @@ void * status; // 不知道有什么用
 int **ans[4] = {ans_1, ans_2, ans_3, ans_4};
 int ans_size;
 
+
 namespace IO
 {
 const int MAXSIZE = 1 << 20;

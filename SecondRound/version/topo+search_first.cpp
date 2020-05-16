@@ -9,7 +9,7 @@
 #include <queue>
 using namespace std;
 
-// #define LINUXOUTPUT
+#define LINUXOUTPUT
 #define OUTPUT
 #define TEST
 // #define GUESSDATA
@@ -19,7 +19,7 @@ using namespace std;
 #include <thread>
 #endif
 #ifdef TEST
-// 9 19
+// 213
 #include <chrono>
 auto time_start = chrono::steady_clock::now();
 string test_scale;
@@ -39,12 +39,14 @@ vector<edge_t> GVU[MAX_EDGE];
 int edge_size;
 
 bool visited[MAX_EDGE];
-int flag[MAX_EDGE];
-bool is_end[MAX_EDGE];
 int node_size;
 int node[MAX_EDGE * 2];
+int v1_to_u[MAX_EDGE];
+int path[8];
+int money[8];
 unordered_map<int, int> node_hashmap;
-double c_prenode_to_node[MAX_EDGE];
+unordered_map<int, vector<edge_t>> bag2;
+bool bag3[MAX_EDGE];
 
 #ifdef TEST
 // data 19630345 环数
@@ -69,8 +71,6 @@ int ans5[ANS5_MAX * 5];
 int ans6[ANS6_MAX * 6];
 int ans7[ANS7_MAX * 7];
 int *ans[5] = {ans3, ans4, ans5, ans6, ans7};
-int path[8];
-int target;
 
 int u_arr[MAX_EDGE];
 int v_arr[MAX_EDGE];
@@ -78,6 +78,7 @@ int c_arr[MAX_EDGE];
 
 int in_degree[MAX_EDGE * 2];
 int out_degree[MAX_EDGE * 2];
+
 namespace IO
 {
     const int MAXSIZE = 1 << 20;
@@ -123,7 +124,46 @@ namespace IO
     }
 } // namespace IO
 
-static bool cmp(pair<int, int> a, pair<int, int> b)
+void topo_cut(queue<int> &q)
+{
+    // 用于搜索后的剪枝
+    int u, v, w;
+    while (!q.empty()) {
+        u = q.front();
+        q.pop();
+        // w-->u-->v
+        if (out_degree[u]) {
+            out_degree[u] = 0;
+        } else {
+            goto part2;
+        }
+        for (int i = 0; i < GUV[u].size(); i++) {
+            v = node_hashmap[GUV[u][i].first];
+            if (in_degree[v]) {
+                in_degree[v]--;
+                if (!in_degree[v] && out_degree[v]) {
+                    q.push(v);
+                }
+            }
+        }
+        part2:
+        if (in_degree[u]) {
+            in_degree[u] = 0;
+        } else {
+            continue;
+        }
+        for (int j = 0; j < GVU[u].size(); j++) {
+            w = node_hashmap[GVU[u][j].first];
+            if (out_degree[w]) {
+                out_degree[w]--;
+                if (!out_degree[w] && in_degree[w]) {
+                    q.push(w);
+                }
+            }
+        }
+    }
+}
+static bool cmp(edge_t a, edge_t b)
 {
     return a.first < b.first;
 }
@@ -132,7 +172,6 @@ inline void read_data()
     freopen(input_path.c_str(), "r", stdin);
     int u, v, c;
     int ch;
-    register int i, j;
     while (1)
     {
         u = IO::rd();
@@ -149,11 +188,11 @@ inline void read_data()
     }
     sort(node + 1, node + node_size + 1);
     node_size = unique(node + 1, node + node_size + 1) - node - 1;
-    for (i = 1; i <= node_size; i++)
+    for (int i = 1; i <= node_size; i++)
     {
         node_hashmap[node[i]] = i;
     }
-    for (i = 1; i <= edge_size; i++)
+    for (int i = 1; i <= edge_size; i++)
     {
         u = node_hashmap[u_arr[i]];
         v = node_hashmap[v_arr[i]];
@@ -162,7 +201,7 @@ inline void read_data()
         GUV[u].push_back(make_pair(v_arr[i], c_arr[i]));
         GVU[v].push_back(make_pair(u_arr[i], c_arr[i]));
     }
-    for (i = 1; i <= node_size; i++)
+    for (int i = 1; i <= node_size; i++)
     {
         if (GUV[i].size())
             sort(GUV[i].begin(), GUV[i].end(), cmp);
@@ -171,17 +210,10 @@ inline void read_data()
     }
 #ifdef GUESSDATA
     // this_thread::sleep_for(chrono::milliseconds(node_size));   //node_size=29W
-    int max_in_degree = 0, max_out_degree = 0;
-    for (i = 1; i <= node_size; i++)
-    {
-        max_in_degree = max(in_degree[i], max_in_degree);
-        max_out_degree = max(out_degree[i], max_out_degree);
-    }
-    this_thread::sleep_for(chrono::milliseconds(max_in_degree * 100));
 #endif
     // Topological sorting
     queue<int> q;
-    for (i = 1; i <= node_size; i++)
+    for (int i = 1; i <= node_size; i++)
     {
         if (!in_degree[i] && out_degree[i])
             q.push(i);
@@ -190,7 +222,7 @@ inline void read_data()
     {
         u = q.front();
         q.pop();
-        for (j = 0; j < GUV[u].size(); j++)
+        for (int j = 0; j < GUV[u].size(); j++)
         {
             v = node_hashmap[GUV[u][j].first];
             --in_degree[v];
@@ -198,7 +230,7 @@ inline void read_data()
                 q.push(v);
         }
     }
-    for (i = 1; i <= node_size; i++)
+    for (int i = 1; i <= node_size; i++)
     {
         if (!out_degree[i] && in_degree[i])
             q.push(i);
@@ -207,7 +239,7 @@ inline void read_data()
     {
         u = q.front();
         q.pop();
-        for (j = 0; j < GVU[u].size(); j++)
+        for (int j = 0; j < GVU[u].size(); j++)
         {
             v = node_hashmap[GVU[u][j].first];
             --out_degree[v];
@@ -217,7 +249,7 @@ inline void read_data()
     }
 #ifdef TEST
     int cnt = 0;
-    for (i = 1; i <= node_size; i++)
+    for (int i = 1; i <= node_size; i++)
     {
         if (!in_degree[i] || !out_degree[i])
             ++cnt;
@@ -228,131 +260,143 @@ inline void read_data()
     cout << "prehandle cost: " << chrono::duration<double, milli>(input_time_diff).count() / 1000 << "s" << endl;
 #endif
 }
-
-void flag_reverse_dfs(int u, int depth, double nxtc)
+int target;
+int get_GVU_lower_bound(int u)
 {
-    // 标记倒走3步以内能到达的点
-    if (depth <= 3)
+    int l = 0, r = GVU[u].size() - 1;
+    while (l < r)
     {
-        register int i;
-        int v;
-        double nowc;
-        double frac;
-        for (i = 0; i < GVU[u].size(); i++)
+        int mid = (l + r) / 2;
+        if (GVU[u][mid].first > target)
+            r = mid;
+        else
+            l = mid + 1;
+    }
+    if (GVU[u][l].first <= target)
+        return GVU[u].size();
+    return l;
+}
+int get_GUV_lower_bound(int u)
+{
+    int l = 0, r = GUV[u].size() - 1;
+    while (l < r)
+    {
+        int mid = (l + r) / 2;
+        if (GUV[u][mid].first > target)
+            r = mid;
+        else
+            l = mid + 1;
+    }
+    if (GUV[u][l].first <= target)
+        return GUV[u].size();
+    return l;
+}
+void flag_reverse_dfs(int u)
+{
+    // v3<--v2<--v1<--u
+    for (int i = get_GVU_lower_bound(u); i < GVU[u].size(); i++)
+    {
+        // 反向第一层
+        int v1 = node_hashmap[GVU[u][i].first];
+        if (!in_degree[v1] || !out_degree[v1])
+            continue;
+        v1_to_u[v1] = GVU[u][i].second;
+        for (int j = get_GVU_lower_bound(v1); j < GVU[v1].size(); j++)
         {
-            v = node_hashmap[GVU[u][i].first];
-            if (!in_degree[v] || !out_degree[v])
+            // 反向第二层
+            // bag2[v2]存的是所有能到达u的v1
+            int v2 = node_hashmap[GVU[v1][j].first];
+            if (!in_degree[v2] || !out_degree[v2])
                 continue;
-            nowc = GVU[u][i].second;
-            frac = nxtc / nowc;
-            if (frac < 0.2 || frac > 3)
-                continue;
-            if (!visited[v] && GVU[u][i].first > target)
+            if (bag2.find(v2) == bag2.end())
+                bag2[v2] = vector<edge_t>{make_pair(node[v1], GVU[v1][j].second)};
+            else
+                bag2[v2].push_back(make_pair(node[v1], GVU[v1][j].second));
+            // 标记能到达u的第三层节点v3
+            for (int k = get_GVU_lower_bound(v2); k < GVU[v2].size(); k++)
             {
-                visited[v] = 1;
-                flag[v] = target;
-                flag_reverse_dfs(v, depth + 1, nowc);
-                visited[v] = 0;
+                int v3 = node_hashmap[GVU[v2][k].first];
+                bag3[v3] = 1;
             }
         }
     }
 }
-
-void dfs(int u, int depth, double prec)
+void dfs(int u, int depth)
 {
-    // pre--prec-->u--nowc-->v
-    register int i, j;
-    int v;
-    double nowc, frac;
-    for (i = 0; i < GUV[u].size(); i++)
+    for (int i = get_GUV_lower_bound(u); i < GUV[u].size(); i++)
     {
-        if (GUV[u][i].first <= target)
-            continue;
-        v = node_hashmap[GUV[u][i].first];
+        int v = node_hashmap[GUV[u][i].first];
         if (!in_degree[v] || !out_degree[v])
             continue;
-        nowc = GUV[u][i].second;
-        frac = nowc / prec;
-        if (frac < 0.2 || frac > 3)
-            continue;
-        if (is_end[v] && visited[v] == 0)
+        if (!visited[v] && bag2.find(v) != bag2.end())
         {
-            frac = c_prenode_to_node[v] / nowc;
-            if (frac >= 0.2 && frac <= 3)
+            path[depth + 1] = GUV[u][i].first;
+            money[depth] = GUV[u][i].second;
+            for (int j = 0; j < bag2[v].size(); j++)
             {
-                int len = depth + 1;
-                path[len] = GUV[u][i].first;
-                int *now_ans = ans[len - 3];
-                ++*(now_ans);
-                for (j = 1; j <= len; j++)
-                    *(now_ans + len * (*now_ans) + j - 1) = path[j];
+                if (visited[node_hashmap[bag2[v][j].first]])
+                    continue;
+                int len = depth + 2;
+                path[depth + 2] = bag2[v][j].first;
+                money[depth + 1] = bag2[v][j].second;
+                money[depth + 2] = v1_to_u[node_hashmap[bag2[v][j].first]];
+                bool valid = 1;
+                for (int k = 1; k <= len; k++)
+                {
+                    double frac;
+                    if (k == len)
+                        frac = (double)money[1] / (double)money[k];
+                    else
+                        frac = (double)money[k + 1] / (double)money[k];
+                    if (frac < 0.2 || frac > 3)
+                    {
+                        valid = 0;
+                        break;
+                    }
+                }
+                if (valid)
+                {
+                    int *now_ans = ans[len - 3];
+                    ++*(now_ans);
+                    for (int k = 1; k <= len; k++)
+                        *(now_ans + len * (*now_ans) + k - 1) = path[k];
+                }
             }
         }
-        if (flag[v] != target && !is_end[v] && depth >= 5)
+        if (!bag3[v] && depth >= 4)
             continue;
-        if (!visited[v] && depth <= 5)
+        if (!visited[v] && depth <= 4)
         {
             visited[v] = 1;
             path[depth + 1] = GUV[u][i].first;
-            dfs(v, depth + 1, nowc);
+            money[depth] = GUV[u][i].second;
+            dfs(v, depth + 1);
             visited[v] = 0;
         }
     }
 }
-
-inline void iter_st_from_node(int u)
-{
-    // pre--prec-->u--nowc-->nxt
-    double prec, nowc, frac;
-    int pre, nxt;
-    for (int i = 0; i < GUV[u].size(); i++)
-    {
-        if (GUV[u][i].first < target || GVU[u].size() == 0)
-            continue;
-        nowc = GUV[u][i].second;
-        memset(is_end, 0, node_size + 5);
-        for (int j = 0; j < GVU[u].size(); j++)
-        {
-            if (GVU[u][j].first < target)
-                continue;
-            pre = node_hashmap[GVU[u][j].first];
-            if (!in_degree[pre] || !out_degree[pre])
-                continue;
-            prec = GVU[u][j].second;
-            frac = nowc / prec;
-            if (frac >= 0.2 && frac <= 3)
-            {
-                c_prenode_to_node[pre] = prec;
-                is_end[pre] = 1;
-                visited[pre] = 1;
-                flag_reverse_dfs(pre, 2, prec);
-                visited[pre] = 0;
-            }
-        }
-        path[1] = target;
-        path[2] = GUV[u][i].first;
-        nxt = node_hashmap[GUV[u][i].first];
-        visited[nxt] = 1;
-        dfs(nxt, 2, nowc);
-        visited[nxt] = 0;
-    }
-}
 inline void work()
 {
-    register int i, j;
-    for (i = 0; i <= node_size; i++)
-        flag[i] = -1;
-    for (i = 1; i <= node_size; i++)
+    int v;
+    queue<int> q;
+    for (int i = 1; i <= node_size; i++)
     {
         if (!in_degree[i] || !out_degree[i])
             continue;
+        bag2.clear();
+        memset(bag3, 0, node_size + 5);
         target = node[i];
-        iter_st_from_node(i);
+        flag_reverse_dfs(i);
+        path[1] = target;
+        dfs(i, 1);
+        q.push(i);
+        topo_cut(q);
     }
 }
+
 inline void output_data()
 {
-    register int i, j, k;
+    int i, j, k;
     freopen(output_path.c_str(), "w", stdout);
 #ifdef TEST
     auto output_time_start = chrono::steady_clock::now();
@@ -373,6 +417,10 @@ inline void output_data()
         }
     }
     fwrite(IO::pbuf, 1, IO::pp - IO::pbuf, stdout);
+#ifdef GUESSDATA
+
+    this_thread::sleep_for(chrono::milliseconds(ans_size / 100));
+#endif
 #ifdef TEST
 #ifdef LINUXOUTPUT
     freopen("/dev/tty", "w", stdout);
@@ -389,8 +437,9 @@ inline void output_data()
 int main(int argc, char **argv)
 {
     test_scale = argv[1];
+    // test_scale = "std";
     input_path = "../data/" + test_scale + "/test_data.txt";
-    output_path = input_path.substr(0, input_path.rfind('/')) + "/vector+ans34567.txt";
+    output_path = input_path.substr(0, input_path.rfind('/')) + "/search_first.txt";
     cout << "Now running on data " + test_scale << endl;
     read_data();
     work();
