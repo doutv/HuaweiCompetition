@@ -9,11 +9,24 @@
 #include <queue>
 using namespace std;
 
+// #define LINUXOUTPUT
+#define OUTPUT
+#define TEST
+
+#ifdef TEST
+// 33 73
+#include <chrono>
+auto time_start = chrono::steady_clock::now();
+string test_scale;
+string input_path;
+string output_path;
+#else
 string input_path = "/data/test_data.txt";
 string output_path = "/projects/student/result.txt";
+#endif
 
 typedef long long ll;
-typedef pair<int, double> edge_t;
+typedef pair<int, long double> edge_t;
 
 const int MAX_EDGE = 2000005;
 vector<edge_t> GUV[MAX_EDGE];
@@ -23,19 +36,30 @@ int edge_size;
 bool visited[MAX_EDGE];
 int node_size;
 int node[MAX_EDGE * 2];
-double v1_to_u[MAX_EDGE];
+long double v1_to_u[MAX_EDGE];
 int path[9];
-double money;
+long double money;
 unordered_map<int, int> node_hashmap;
 unordered_map<int, vector<edge_t>> bag2;
 bool bag3[MAX_EDGE];
 
+#ifdef TEST
+// data 19630345 环数
+// 1919   16032   151763   1577627  17883004
+const int ANS3_MAX = 10000005;
+const int ANS4_MAX = 10000005;
+const int ANS5_MAX = 10000005;
+const int ANS6_MAX = 10000005;
+const int ANS7_MAX = 20000005;
+const int ANS8_MAX = 10000005;
+#else
 const int ANS3_MAX = 20000005;
 const int ANS4_MAX = 20000005;
 const int ANS5_MAX = 20000005;
 const int ANS6_MAX = 20000005;
 const int ANS7_MAX = 20000005;
 const int ANS8_MAX = 20000005;
+#endif
 
 int ans_size;
 int ans3[ANS3_MAX * 3];
@@ -48,7 +72,7 @@ int *ans[6] = {ans3, ans4, ans5, ans6, ans7, ans8};
 
 int u_arr[MAX_EDGE];
 int v_arr[MAX_EDGE];
-double c_arr[MAX_EDGE];
+long double c_arr[MAX_EDGE];
 
 int in_degree[MAX_EDGE * 2];
 int out_degree[MAX_EDGE * 2];
@@ -57,6 +81,39 @@ namespace IO
 {
     const int MAXSIZE = 1 << 20;
     char buf[MAXSIZE], *p1, *p2;
+#define gc() (p1 == p2 && (p2 = (p1 = buf) + fread(buf, 1, MAXSIZE, stdin), p1 == p2) ? EOF : *p1++)
+    inline int rd()
+    {
+        int x = 0;
+        int16_t c = gc();
+        while (!isdigit(c))
+        {
+            if (c == EOF)
+                return c;
+            c = gc();
+        }
+        while (isdigit(c))
+            x = x * 10 + (c ^ 48), c = gc();
+        return x;
+    }
+    inline void rd_to_line_end()
+    {
+        int16_t c = gc();
+        while (c != '\n')
+            c = gc();
+    }
+    inline long double read_double()
+    {
+        long double tmp = 1;
+        long double x = 0;
+        char ch = gc();
+        for (; isdigit(ch); ch = gc())
+            x = x * 10 + (ch - '0');
+        if (ch == '.')
+            for (ch = gc(); isdigit(ch); ch = gc())
+                tmp /= 10.0, x += tmp * (ch - '0');
+        return x;
+    }
     char pbuf[MAXSIZE], *pp = pbuf;
     inline void push(const char &c)
     {
@@ -86,7 +143,7 @@ inline void read_data()
     freopen(input_path.c_str(), "r", stdin);
     int u, v;
     int ch;
-    double c;
+    long double c;
     while (scanf("%d,%d,%lf", &u, &v, &c) != EOF)
     {
         node[++node_size] = u;
@@ -118,6 +175,7 @@ inline void read_data()
         if (GVU[i].size())
             sort(GVU[i].begin(), GVU[i].end(), cmp);
     }
+    // Topological sorting
     queue<int> q;
     for (int i = 1; i <= node_size; i++)
     {
@@ -153,6 +211,18 @@ inline void read_data()
                 q.push(v);
         }
     }
+#ifdef TEST
+    int cnt = 0;
+    for (int i = 1; i <= node_size; i++)
+    {
+        if (!in_degree[i] || !out_degree[i])
+            ++cnt;
+    }
+    printf("Topological sort cut %d points\n", cnt);
+    auto input_time_end = chrono::steady_clock::now();
+    auto input_time_diff = input_time_end - time_start;
+    cout << "prehandle cost: " << chrono::duration<long double, milli>(input_time_diff).count() / 1000 << "s" << endl;
+#endif
 }
 int target;
 int get_GVU_lower_bound(int u)
@@ -185,17 +255,19 @@ int get_GUV_lower_bound(int u)
         return GUV[u].size();
     return l;
 }
-void flag_reverse_dfs(int u, int depth, double prec)
+void flag_reverse_dfs(int u, int depth, long double prec)
 {
+    // v3<--v2<--v1<--u
     for (int i = get_GVU_lower_bound(u); i < GVU[u].size(); i++)
     {
+        // 反向第一层
         int v = node_hashmap[GVU[u][i].first];
         if (!in_degree[v] || !out_degree[v])
             continue;
         if (depth >= 2)
         {
-            double frac = prec / GVU[u][i].second;
-            if (frac < 0.2 || frac > 3.0)
+            long double frac = prec / GVU[u][i].second;
+            if (frac < 0.2 || frac > 3)
                 continue;
         }
         if (depth == 1)
@@ -217,7 +289,7 @@ void flag_reverse_dfs(int u, int depth, double prec)
         }
     }
 }
-void dfs(int u, int depth, double prec)
+void dfs(int u, int depth, long double prec)
 {
     for (int i = get_GUV_lower_bound(u); i < GUV[u].size(); i++)
     {
@@ -230,8 +302,8 @@ void dfs(int u, int depth, double prec)
         }
         else if (depth >= 2)
         {
-            double frac = GUV[u][i].second / prec;
-            if (frac < 0.2 || frac > 3.0)
+            long double frac = GUV[u][i].second / prec;
+            if (frac < 0.2 || frac > 3)
                 continue;
         }
         if (!visited[v] && bag2.find(v) != bag2.end())
@@ -243,13 +315,13 @@ void dfs(int u, int depth, double prec)
                     continue;
                 int len = depth + 2;
                 path[depth + 2] = bag2[v][j].first;
-                double frac = money / v1_to_u[node_hashmap[bag2[v][j].first]];
-                if (frac < 0.2 || frac > 3.0)
+                long double frac = money / v1_to_u[node_hashmap[bag2[v][j].first]];
+                if (frac < 0.2 || frac > 3)
                 {
                     continue;
                 }
                 frac = bag2[v][j].second / GUV[u][i].second;
-                if (frac < 0.2 || frac > 3.0)
+                if (frac < 0.2 || frac > 3)
                 {
                     continue;
                 }
@@ -281,10 +353,9 @@ inline void work()
         memset(bag3, 0, node_size + 5);
         target = node[i];
         visited[i] = 1;
-        double tmp = 0.0;
-        flag_reverse_dfs(i, 1, tmp);
+        flag_reverse_dfs(i, 1, 0);
         path[1] = target;
-        dfs(i, 1, tmp);
+        dfs(i, 1, 0);
         visited[i] = 0;
     }
 }
@@ -293,6 +364,9 @@ inline void output_data()
 {
     int i, j, k;
     freopen(output_path.c_str(), "w", stdout);
+#ifdef TEST
+    auto output_time_start = chrono::steady_clock::now();
+#endif
     ans_size = *(ans3) + *(ans4) + *(ans5) + *(ans6) + *(ans7) + *(ans8);
     printf("%d\n", ans_size);
     for (i = 0; i <= 5; i++)
@@ -309,7 +383,45 @@ inline void output_data()
         }
     }
     fwrite(IO::pbuf, 1, IO::pp - IO::pbuf, stdout);
+#ifdef TEST
+#ifdef LINUXOUTPUT
+    freopen("/dev/tty", "w", stdout);
+#else
+    freopen("CON", "w", stdout);
+#endif
+    auto output_time_end = chrono::steady_clock::now();
+    auto output_time_diff = output_time_end - output_time_start;
+    cout << "output cost: " << chrono::duration<long double, milli>(output_time_diff).count() / 1000 << "s" << endl;
+#endif
+    return;
 }
+#ifdef TEST
+int main(int argc, char **argv)
+{
+    if (argc >= 2)
+        test_scale = argv[1];
+    else
+        test_scale = "final";
+    input_path = "../data/" + test_scale + "/test_data.txt";
+    output_path = input_path.substr(0, input_path.rfind('/')) + "/search_first.txt";
+    cout << "Now running on data " + test_scale << endl;
+    read_data();
+    work();
+    output_data();
+    auto time_end = chrono::steady_clock::now();
+    auto diff = time_end - time_start;
+#ifdef LINUXOUTPUT
+    freopen("/dev/tty", "w", stdout);
+#else
+    freopen("CON", "w", stdout);
+#endif
+    printf("ans size is %d\n", ans_size);
+    cout << "The program's speed: " << chrono::duration<long double, milli>(diff).count() / 1000 << "s" << endl;
+    fclose(stdin);
+    fclose(stdout);
+    return 0;
+}
+#else
 int main()
 {
     read_data();
@@ -319,3 +431,4 @@ int main()
     fclose(stdout);
     return 0;
 }
+#endif
