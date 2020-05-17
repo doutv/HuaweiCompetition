@@ -9,7 +9,7 @@
 #include <queue>
 using namespace std;
 
-// #define LINUXOUTPUT
+#define LINUXOUTPUT
 #define OUTPUT
 #define TEST
 
@@ -51,7 +51,7 @@ const int ANS4_MAX = 10000005;
 const int ANS5_MAX = 10000005;
 const int ANS6_MAX = 10000005;
 const int ANS7_MAX = 20000005;
-const int ANS8_MAX = 10000005;
+const int ANS8_MAX = 20000005;
 #else
 const int ANS3_MAX = 20000005;
 const int ANS4_MAX = 20000005;

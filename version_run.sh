@@ -1,6 +1,6 @@
 cd /root/HuaweiCompetition/SecondRound/version
-g++ -O3 ./search_first.cpp -o test
-./test std
+g++ -O3 ./search_first.cpp -o test -lpthread -fpic
+./test final
 ./test 9153
 ./test 639096
 ./test 697518

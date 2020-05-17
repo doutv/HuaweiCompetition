@@ -10,7 +10,7 @@
 #include <pthread.h>
 using namespace std;
 
-// #define LINUXOUTPUT
+#define LINUXOUTPUT
 #define OUTPUT
 #define TEST
 
@@ -45,10 +45,10 @@ int out_degree[MAX_EDGE * 2];
 #ifdef TEST
 // data 19630345 环数
 // 1919   16032   151763   1577627  17883004
-const int ANS3_MAX = 10000005;
-const int ANS4_MAX = 10000005;
-const int ANS5_MAX = 10000005;
-const int ANS6_MAX = 10000005;
+const int ANS3_MAX = 1000005;
+const int ANS4_MAX = 1000005;
+const int ANS5_MAX = 1000005;
+const int ANS6_MAX = 2000005;
 const int ANS7_MAX = 20000005;
 #else
 const int ANS3_MAX = 20000005;
@@ -175,6 +175,27 @@ namespace IO
     }
 } // namespace IO
 
+inline int max_id(float a, float b, float c, int N)
+{
+    float y = 0;
+    int x;
+    float min, max, mid;
+    min = 0;
+    max = 1;
+    while(1) {
+        mid = (max + min) / 2;
+        y = a * pow((1-mid), 5.0) + b * pow(1-mid, 4.0) - c;
+        if (-0.0001 > y) {
+            max = mid;
+        } else if ( y > 0.0001) {
+            min = mid;
+        } else {
+            break;
+        }
+    }
+    x = int(mid * N);
+    return x;
+}
 static bool cmp(edge_t a, edge_t b)
 {
     return a.first < b.first;
@@ -213,9 +234,10 @@ inline void read_data()
         GUV[u].push_back(make_pair(v_arr[i], c_arr[i]));
         GVU[v].push_back(make_pair(u_arr[i], c_arr[i]));
     }
-    MAX_1 = int(0.055 * node_size);
-    MAX_2 = int(0.13 * node_size);
-    MAX_3 = int(0.25 * node_size);
+    int r = edge_size / node_size;
+    MAX_1 = max_id(float(r)/5, float(1)/4, float(12*r+15)/80, node_size);
+    MAX_2 = max_id(float(r)/5, float(1)/4, float(4*r+5)/50, node_size);
+    MAX_3 = max_id(float(r)/5, float(1)/4, float(4*r+5)/80, node_size);
     MAX_4 = node_size;
     // cout << MAX_1 << ' ' << MAX_2 << ' ' << MAX_3 << ' ' << MAX_4 << endl;
     for (int i = 1; i <= node_size; i++)
@@ -897,8 +919,8 @@ int main(int argc, char **argv)
     {
         test_scale = "std";
     }
-    input_path = "./data/" + test_scale + "/test_data.txt";
-    output_path = input_path.substr(0, input_path.rfind('/')) + "/search_first.txt";
+    input_path = "../data/" + test_scale + "/test_data.txt";
+    output_path = input_path.substr(0, input_path.rfind('/')) + "/multithread+search_first.txt";
     cout << "Now running on data " + test_scale << endl;
     read_data();
     pthread_attr_init(&attr);
